@@ -84,3 +84,18 @@ drop trigger if exists budget_settings_touch_updated_at on public.budget_setting
 create trigger budget_settings_touch_updated_at
   before update on public.budget_settings
   for each row execute function public.touch_budget_settings_updated_at();
+
+-- Amounts are always stored in ILS so the budget, charts and profit maths stay
+-- in one currency and historical figures never shift when the rate moves.
+-- These columns keep the original entry honest.
+alter table public.poker_sessions
+  add column if not exists entry_currency text not null default 'ILS'
+    check (entry_currency in ('ILS', 'USD')),
+  add column if not exists fx_rate numeric(12,4)
+    check (fx_rate is null or fx_rate > 0);
+
+alter table public.poker_sessions
+  drop constraint if exists poker_sessions_fx_rate_required;
+alter table public.poker_sessions
+  add constraint poker_sessions_fx_rate_required
+  check (entry_currency = 'ILS' or fx_rate is not null);

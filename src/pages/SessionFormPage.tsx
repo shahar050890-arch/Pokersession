@@ -3,16 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import { budgetStatus } from '../lib/budget'
 import { formatMoney, formatSigned, monthKey, shiftDays, todayIso } from '../lib/format'
-import type { GameType, SessionInput } from '../lib/types'
+import type { EntryCurrency, GameType, SessionInput } from '../lib/types'
 import Keypad from '../components/Keypad'
 import Stepper from '../components/Stepper'
 import { ErrorNote, Spinner, moneyClass } from '../components/ui'
 import { ChipButton, SuitRule } from '../components/decor'
+import { cachedRate, fetchRate, formatRate, isStale, toIls, type Rate } from '../lib/fx'
 
 type Slot = 'in' | 'out'
 
 /** Quick top-ups sized to common Israeli buy-ins. */
-const BUMPS = [25, 100, 500]
+const BUMPS_ILS = [25, 100, 500]
+const BUMPS_USD = [5, 25, 100]
 
 export default function SessionFormPage() {
   const { id } = useParams()
@@ -32,6 +34,9 @@ export default function SessionFormPage() {
   const [duration, setDuration] = useState('')
   const [notes, setNotes] = useState('')
   const [showMore, setShowMore] = useState(false)
+  const [currency, setCurrency] = useState<EntryCurrency>('ILS')
+  const [rate, setRate] = useState<Rate | null>(() => cachedRate())
+  const [rateLoading, setRateLoading] = useState(false)
 
   const [hydrated, setHydrated] = useState(!id)
   const [error, setError] = useState<string | null>(null)
@@ -53,11 +58,35 @@ export default function SessionFormPage() {
     setDuration(editing.duration_minutes === null ? '' : String(editing.duration_minutes))
     setNotes(editing.notes ?? '')
     setShowMore(!!editing.duration_minutes || !!editing.notes)
+    if (editing.entry_currency === 'USD' && editing.fx_rate) {
+      // Re-enter at the original rate so the figures match what was saved.
+      setCurrency('USD')
+      setRate({ value: editing.fx_rate, date: editing.date, fetchedAt: Date.now() })
+      setBuyIn(String(Math.round((editing.buy_in_amount / editing.fx_rate) * 100) / 100))
+      setCashOut(String(Math.round((editing.cash_out / editing.fx_rate) * 100) / 100))
+    }
     setHydrated(true)
   }, [id, editing, hydrated, locations])
 
-  const buyInNum = Number(buyIn || 0)
-  const cashOutNum = Number(cashOut || 0)
+  useEffect(() => {
+    let alive = true
+    setRateLoading(true)
+    void fetchRate().then((r) => {
+      if (!alive) return
+      if (r) setRate(r)
+      setRateLoading(false)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  // Typed figures are in the selected currency; everything downstream is ILS.
+  const rateValue = currency === 'USD' ? (rate?.value ?? null) : 1
+  const typedBuyIn = Number(buyIn || 0)
+  const typedCashOut = Number(cashOut || 0)
+  const buyInNum = rateValue === null ? 0 : toIls(typedBuyIn, rateValue)
+  const cashOutNum = rateValue === null ? 0 : toIls(typedCashOut, rateValue)
   const totalIn = buyInNum * entries
   const profit = cashOutNum - totalIn
   const started = buyIn !== '' || cashOut !== ''
@@ -78,6 +107,8 @@ export default function SessionFormPage() {
       cash_out: cashOutNum,
       duration_minutes: null,
       notes: null,
+      entry_currency: currency,
+      fx_rate: currency === 'USD' ? rateValue : null,
       total_in: totalIn,
       profit,
     }
@@ -97,6 +128,7 @@ export default function SessionFormPage() {
     )
   }
 
+  const symbol = currency === 'USD' ? '$' : '\u20AA'
   const active = slot === 'in' ? buyIn : cashOut
   const setActive = slot === 'in' ? setBuyIn : setCashOut
 
@@ -114,6 +146,8 @@ export default function SessionFormPage() {
   }
 
   function validate(): string | null {
+    if (currency === 'USD' && rateValue === null)
+      return 'אין שער חליפין זמין כרגע. עבור לשקלים או נסה שוב מאוחר יותר.'
     if (buyIn === '' || buyInNum <= 0) return 'צריך למלא כמה נכנסת'
     if (cashOut === '') return 'צריך למלא כמה יצאת — 0 אם יצאת בלי כלום'
     if (duration.trim() !== '' && Number(duration) < 0) return 'משך הזמן לא יכול להיות שלילי'
@@ -135,6 +169,8 @@ export default function SessionFormPage() {
       cash_out: cashOutNum,
       duration_minutes: duration.trim() === '' ? null : Math.floor(Number(duration)),
       notes: notes.trim() === '' ? null : notes.trim(),
+      entry_currency: currency,
+      fx_rate: currency === 'USD' ? rateValue : null,
     }
 
     try {
@@ -170,7 +206,7 @@ export default function SessionFormPage() {
 
   return (
     <div className="pb-4">
-      <header className="mb-5 flex items-center justify-between">
+      <header className="mb-4 flex items-center justify-between">
         <h1 className="text-[26px] font-bold tracking-tight">{id ? 'עריכת סשן' : 'סשן חדש'}</h1>
         <div className="flex rounded-full border border-line p-0.5 dark:border-night-line">
           {(
@@ -194,6 +230,51 @@ export default function SessionFormPage() {
           ))}
         </div>
       </header>
+
+      {/* Currency switch. Dollars are an input convenience only — what gets
+          stored is always shekels, at the rate shown here. */}
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex rounded-full border border-line p-0.5 dark:border-night-line">
+          {(
+            [
+              ['ILS', '₪'],
+              ['USD', '$'],
+            ] as const
+          ).map(([v, l]) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => {
+                setCurrency(v)
+                setBuyIn('')
+                setCashOut('')
+              }}
+              className={`num w-12 rounded-full py-1.5 text-[16px] font-bold transition ${
+                currency === v
+                  ? 'bg-ink text-white dark:bg-white dark:text-night-bg'
+                  : 'text-ink-soft dark:text-zinc-400'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {currency === 'USD' && (
+          <span className="text-[13px] text-ink-soft dark:text-zinc-400">
+            {rateValue !== null ? (
+              <>
+                שער <span className="num font-semibold">{formatRate(rateValue)}</span>
+                {rate && isStale(rate) && <span className="text-flag"> · לא עדכני</span>}
+              </>
+            ) : rateLoading ? (
+              'טוען שער…'
+            ) : (
+              <span className="text-down dark:text-down-night">אין שער זמין</span>
+            )}
+          </span>
+        )}
+      </div>
 
       {/* The two figures that matter. Tap one to aim the keypad at it. */}
       <div className="surface overflow-hidden">
@@ -220,12 +301,22 @@ export default function SessionFormPage() {
                 <span className={`num text-[30px] font-bold ${value === '' ? 'text-ink-faint' : ''}`}>
                   {value === '' ? '0' : Number(value).toLocaleString('he-IL')}
                 </span>
-                <span className="text-[17px] text-ink-soft dark:text-zinc-500">₪</span>
+                <span className="num text-[17px] text-ink-soft dark:text-zinc-500">{symbol}</span>
               </span>
             </button>
           )
         })}
       </div>
+
+      {currency === 'USD' && rateValue !== null && (typedBuyIn > 0 || typedCashOut > 0) && (
+        <div className="mt-3 flex items-center justify-between rounded-xl2 border border-line bg-card px-4 py-3 dark:border-night-line dark:bg-night-card">
+          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">יישמר בשקלים</span>
+          <span className="num text-[15px] font-semibold">
+            {formatMoney(buyInNum)} <span className="text-ink-faint">כניסה</span> ·{' '}
+            {formatMoney(cashOutNum)} <span className="text-ink-faint">יציאה</span>
+          </span>
+        </div>
+      )}
 
       {/* The multiplier is the easiest thing to get wrong, so it is spelled out
           in full rather than left implied by a small "total" label. */}
@@ -248,7 +339,7 @@ export default function SessionFormPage() {
       )}
 
       <div className="mt-4 flex items-center justify-center gap-4">
-        {BUMPS.map((b) => (
+        {(currency === 'USD' ? BUMPS_USD : BUMPS_ILS).map((b) => (
           <ChipButton key={b} value={b} onClick={() => bump(b)} />
         ))}
         <button

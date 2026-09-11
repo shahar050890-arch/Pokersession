@@ -170,6 +170,14 @@ export default function SessionsPage() {
                                   ['סך כניסות', formatMoney(s.total_in)],
                                   ['יציאה', formatMoney(s.cash_out)],
                                   ['משך', formatDuration(s.duration_minutes)],
+                                  ...(s.entry_currency === 'USD' && s.fx_rate
+                                    ? ([
+                                        [
+                                          'נרשם בדולרים',
+                                          `$${Math.round((s.total_in / s.fx_rate) * 100) / 100} · שער ${s.fx_rate}`,
+                                        ],
+                                      ] as const)
+                                    : []),
                                 ] as const
                               ).map(([k, v]) => (
                                 <div key={k} className="flex justify-between">
