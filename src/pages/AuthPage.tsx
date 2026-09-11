@@ -56,20 +56,16 @@ export default function AuthPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-10">
       {/* The sign-in screen is the one place the table can be felt outright. */}
-      <div className="absolute inset-x-0 top-0 h-[46vh] bg-felt" />
       <div
         className="absolute inset-x-0 top-0 h-[46vh]"
-        style={{
-          background:
-            'radial-gradient(90% 70% at 50% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0) 65%)',
-        }}
+        style={{ background: 'linear-gradient(158deg, #0D3A34, #07211F)' }}
       />
       <div className="absolute inset-x-0 top-0 h-[46vh] text-white">
-        <SuitField opacity={0.07} scale={58} />
+        <SuitField opacity={0.06} scale={44} />
       </div>
       <div
-        className="absolute inset-x-0 bg-paper dark:bg-night-bg"
-        style={{ top: '46vh', bottom: 0 }}
+        className="absolute inset-x-0 top-[46vh] h-px"
+        style={{ background: 'linear-gradient(90deg, transparent, #0FBFA066, transparent)' }}
       />
 
       <div className="relative w-full max-w-sm">
@@ -79,8 +75,8 @@ export default function AuthPage() {
           <p className="mt-2 text-[15px] text-white/70">{t.auth.tagline}</p>
         </div>
 
-        <div className="surface p-5">
-          <div className="mb-5 flex rounded-xl bg-line/60 p-1 dark:bg-night-line/60">
+        <div className="surface-lit p-5">
+          <div className="seg mb-5">
             {(['signin', 'signup'] as const).map((m) => (
               <button
                 key={m}
@@ -90,11 +86,7 @@ export default function AuthPage() {
                   setError(null)
                   setNotice(null)
                 }}
-                className={`flex-1 rounded-lg py-2.5 text-[15px] font-medium transition ${
-                  mode === m
-                    ? 'bg-card text-ink shadow-soft dark:bg-night-card dark:text-white'
-                    : 'text-ink-soft dark:text-zinc-400'
-                }`}
+                data-on={mode === m}
               >
                 {m === 'signin' ? t.auth.signIn : t.auth.signUp}
               </button>
@@ -138,18 +130,18 @@ export default function AuthPage() {
 
             {error && <ErrorNote>{error}</ErrorNote>}
             {notice && (
-              <p className="rounded-xl bg-up-soft px-4 py-3 text-[15px] text-up dark:bg-up/10 dark:text-up-night">
+              <p className="rounded-control border border-jade/30 bg-jade/[0.08] px-4 py-3 text-[15px] text-jade">
                 {notice}
               </p>
             )}
 
-            <button type="submit" className="btn" disabled={busy}>
-              {busy ? t.auth.working : mode === 'signin' ? t.auth.submitIn : t.auth.submitUp}
+            <button type="submit" className="tube" disabled={busy}>
+              <span>{busy ? t.auth.working : mode === 'signin' ? t.auth.submitIn : t.auth.submitUp}</span>
             </button>
           </form>
         </div>
 
-        <p className="mt-6 text-center text-[13px] leading-relaxed text-ink-faint">
+        <p className="mt-6 text-center text-[13px] leading-relaxed text-ink-dim">
           {t.auth.privacy}
         </p>
       </div>

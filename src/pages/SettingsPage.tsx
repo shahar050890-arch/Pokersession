@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
-import { useTheme } from '../context/ThemeContext'
 import { useI18n } from '../context/I18nContext'
 import { useCurrency } from '../context/CurrencyContext'
 import type { BudgetMode } from '../lib/types'
@@ -13,7 +12,6 @@ import { ChipFace, FeltHeader, SuitRule } from '../components/decor'
 export default function SettingsPage() {
   const { user, signOut } = useAuth()
   const { settings, sessions, loading, saveSettings, resetAllData } = useData()
-  const { theme, setTheme } = useTheme()
   const { t, lang, setLang } = useI18n()
   const { display, setDisplay, fellBack } = useCurrency()
 
@@ -128,17 +126,17 @@ export default function SettingsPage() {
               inputMode="decimal"
               min="0"
               step="any"
-              className="field num pe-10 text-[24px] font-bold"
+              className="field num pe-10 text-[24px] font-extrabold"
               placeholder={t.settings.budgetPlaceholder}
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
               aria-label={t.settings.budgetAria}
             />
-            <span className="num pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-[18px] text-ink-faint">
+            <span className="num pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-[17px] text-brass">
               {display === 'USD' ? '$' : '₪'}
             </span>
           </div>
-          <p className="mt-2 text-[13px] text-ink-soft dark:text-zinc-500">{t.settings.budgetHint}</p>
+          <p className="mt-2 text-[13px] text-ink-faint">{t.settings.budgetHint}</p>
 
           <SuitRule className="my-5" />
 
@@ -150,23 +148,21 @@ export default function SettingsPage() {
                   key={m}
                   type="button"
                   onClick={() => setMode(m)}
-                  className={`w-full rounded-xl2 border p-4 text-start transition ${
-                    on
-                      ? 'border-ink bg-line/40 dark:border-white dark:bg-night-line/50'
-                      : 'border-line dark:border-night-line'
+                  className={`w-full rounded-control border p-4 text-start transition ${
+                    on ? 'border-jade/50 bg-jade/[0.07]' : 'border-hair-soft'
                   }`}
                 >
                   <span className="flex items-center gap-2.5">
                     <span
                       className={`flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border-2 ${
-                        on ? 'border-ink dark:border-white' : 'border-ink-faint dark:border-zinc-600'
+                        on ? 'border-jade' : 'border-ink-dim'
                       }`}
                     >
-                      {on && <span className="h-2.5 w-2.5 rounded-full bg-ink dark:bg-white" />}
+                      {on && <span className="h-2.5 w-2.5 rounded-full bg-jade" />}
                     </span>
                     <span className="text-[16px] font-semibold">{MODE_COPY[m].label}</span>
                   </span>
-                  <span className="mt-2 block ps-[29px] text-[14px] leading-relaxed text-ink-soft dark:text-zinc-400">
+                  <span className="mt-2 block ps-[29px] text-[14px] leading-relaxed text-ink-soft">
                     {MODE_COPY[m].blurb}
                   </span>
                 </button>
@@ -177,7 +173,7 @@ export default function SettingsPage() {
           <label className="mt-5 flex cursor-pointer items-center justify-between gap-4">
             <span>
               <span className="block text-[16px] font-medium">{t.settings.rollover}</span>
-              <span className="mt-0.5 block text-[14px] leading-relaxed text-ink-soft dark:text-zinc-400">
+              <span className="mt-0.5 block text-[14px] leading-relaxed text-ink-soft">
                 {t.settings.rolloverBlurb}
               </span>
             </span>
@@ -188,13 +184,23 @@ export default function SettingsPage() {
                 checked={rollover}
                 onChange={(e) => setRollover(e.target.checked)}
               />
-              <span className="block h-[31px] w-[51px] rounded-full bg-line transition peer-checked:bg-up dark:bg-night-line" />
-              {/* Logical offset so the knob starts on the correct side in both
-                  reading directions, and travels inward either way. */}
+              {/* The knob is a dealer button — the one thing on a poker table
+                  that slides from seat to seat. */}
               <span
-                className="pointer-events-none absolute start-[2px] top-[2px] h-[27px] w-[27px] rounded-full
-                           bg-white shadow transition-transform peer-checked:translate-x-5 rtl:peer-checked:-translate-x-5"
+                className="block h-[30px] w-[56px] rounded-full bg-sunken transition"
+                style={{ boxShadow: 'inset 0 2px 5px #00000099, inset 0 0 0 1px #0FBFA040' }}
               />
+              <span
+                className="pointer-events-none absolute start-[3px] top-[3px] grid h-6 w-6 place-items-center
+                           rounded-full text-[11px] font-extrabold text-[#2A2418] transition-transform
+                           peer-checked:translate-x-[26px] rtl:peer-checked:-translate-x-[26px]"
+                style={{
+                  background: 'radial-gradient(circle at 34% 30%, #FFFDF4, #D9D2BE)',
+                  boxShadow: '0 1px 3px #000000b0, 0 0 10px #0FBFA04d',
+                }}
+              >
+                D
+              </span>
             </span>
           </label>
 
@@ -204,8 +210,8 @@ export default function SettingsPage() {
             </div>
           )}
 
-          <button onClick={() => void onSave()} className="btn mt-5" disabled={busy}>
-            {busy ? t.settings.saving : saved ? t.settings.saved : t.settings.save}
+          <button onClick={() => void onSave()} className="tube mt-5" disabled={busy}>
+            <span>{busy ? t.settings.saving : saved ? t.settings.saved : t.settings.save}</span>
           </button>
         </section>
 
@@ -222,7 +228,7 @@ export default function SettingsPage() {
                 key={value}
                 type="button"
                 onClick={() => setLang(value as Lang)}
-                className={`chip flex-1 text-center ${lang === value ? 'chip-on' : ''}`}
+                className="chip-pill flex-1 justify-center text-center" data-on={lang === value}
               >
                 {label}
               </button>
@@ -235,55 +241,33 @@ export default function SettingsPage() {
           <div className="flex gap-2">
             {(
               [
-                ['ILS', '₪ שקל'],
-                ['USD', '$ Dollar'],
+                ['ILS', t.settings.shekel],
+                ['USD', t.settings.dollar],
               ] as const
             ).map(([value, label]) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => setDisplay(value)}
-                className={`chip num flex-1 text-center ${display === value ? 'chip-on' : ''}`}
+                className="chip-pill num flex-1 justify-center text-center" data-on={display === value}
               >
                 {label}
               </button>
             ))}
           </div>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft dark:text-zinc-500">
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">
             {fellBack ? t.settings.currencyNoRate : t.settings.currencyNote}
           </p>
         </section>
 
         <section className="surface px-5 py-5">
-          <h2 className="mb-3 text-[15px] font-semibold">{t.settings.appearance}</h2>
-          <div className="flex gap-2">
-            {(
-              [
-                ['light', t.settings.light],
-                ['dark', t.settings.dark],
-                ['system', t.settings.system],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setTheme(value)}
-                className={`chip flex-1 text-center ${theme === value ? 'chip-on' : ''}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <section className="surface px-5 py-5">
           <h2 className="text-[15px] font-semibold">{t.settings.account}</h2>
-          <p className="mt-2 text-[15px] text-ink-soft dark:text-zinc-400" dir="ltr" style={{ textAlign: 'start' }}>
+          <p className="mt-2 text-[15px] text-ink-soft" dir="ltr" style={{ textAlign: 'start' }}>
             {user?.email}
           </p>
           <button
             onClick={() => void signOut()}
-            className="mt-4 w-full rounded-xl2 border border-line py-3.5 text-[16px] font-medium text-down transition active:scale-[0.985] dark:border-night-line dark:text-down-night"
+            className="mt-4 w-full rounded-tube border border-loss/40 py-3.5 text-[16px] font-semibold text-loss transition active:scale-[0.985]"
           >
             {t.settings.signOut}
           </button>
@@ -291,17 +275,17 @@ export default function SettingsPage() {
 
         {/* Destructive and permanent, so it confirms with the exact count and
             sits apart from everything else. */}
-        <section className="rounded-xl2 border border-down/30 bg-down-soft/40 px-5 py-5 dark:border-down/25 dark:bg-down/[0.06]">
-          <h2 className="text-[15px] font-semibold text-down dark:text-down-night">
+        <section className="rounded-surface border border-loss/25 bg-loss/[0.05] px-5 py-5">
+          <h2 className="text-[15px] font-semibold text-loss">
             {t.settings.danger}
           </h2>
 
           {resetDone ? (
-            <p className="mt-3 text-[15px] text-ink-soft dark:text-zinc-400">{t.settings.resetDone}</p>
+            <p className="mt-3 text-[15px] text-ink-soft">{t.settings.resetDone}</p>
           ) : confirmReset ? (
             <div className="mt-3">
               <p className="text-[16px] font-semibold">{t.settings.resetTitle}</p>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft dark:text-zinc-400">
+              <p className="mt-1.5 text-[14px] leading-relaxed text-ink-soft">
                 {t.settings.resetBody(sessions.length)}
               </p>
               {resetError && (
@@ -313,7 +297,7 @@ export default function SettingsPage() {
                 <button
                   onClick={() => void onReset()}
                   disabled={resetting}
-                  className="flex-1 rounded-xl bg-down py-3 text-[15px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
+                  className="flex-1 rounded-tube bg-loss py-3 text-[15px] font-semibold text-room transition active:scale-[0.98] disabled:opacity-50"
                 >
                   {resetting ? t.settings.resetting : t.settings.resetConfirm}
                 </button>
@@ -322,7 +306,7 @@ export default function SettingsPage() {
                     setConfirmReset(false)
                     setResetError(null)
                   }}
-                  className="flex-1 rounded-xl border border-line bg-card py-3 text-[15px] font-medium text-ink-soft dark:border-night-line dark:bg-night-card dark:text-zinc-300"
+                  className="plaque flex-1 !py-3"
                 >
                   {t.settings.resetCancel}
                 </button>
@@ -332,9 +316,8 @@ export default function SettingsPage() {
             <button
               onClick={() => setConfirmReset(true)}
               disabled={nothingToDelete}
-              className="mt-3 w-full rounded-xl2 border border-down/40 bg-card py-3.5 text-[16px] font-medium
-                         text-down transition active:scale-[0.985] disabled:opacity-40
-                         dark:border-down/30 dark:bg-night-card dark:text-down-night"
+              className="mt-3 w-full rounded-tube border border-loss/40 bg-panel py-3.5 text-[16px]
+                         font-semibold text-loss transition active:scale-[0.985] disabled:opacity-40"
             >
               {nothingToDelete ? t.settings.resetNothing : t.settings.resetCta}
             </button>

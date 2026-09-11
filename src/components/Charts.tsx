@@ -11,7 +11,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { useTheme } from '../context/ThemeContext'
 import { useI18n } from '../context/I18nContext'
 import { formatMoney, formatShortDate, formatSigned, toDisplay } from '../lib/format'
 
@@ -21,23 +20,19 @@ export interface ChartPoint {
   value: number
 }
 
-const PROFIT = '#0E9F6E'
-const LOSS = '#DC4B45'
-const PROFIT_DARK = '#34D399'
-const LOSS_DARK = '#F87171'
+const PROFIT = '#0FBFA0'
+const LOSS = '#FF4D6D'
 
+/** One palette: the charts sit in the same dark room as everything else. */
 function useAxisColors() {
-  const { resolved } = useTheme()
-  const dark = resolved === 'dark'
   return {
-    dark,
-    axis: dark ? '#71717A' : '#A1A1AA',
-    grid: dark ? '#26262C' : '#ECECE8',
-    tooltipBg: dark ? '#151519' : '#FFFFFF',
-    tooltipText: dark ? '#FAFAFA' : '#14141A',
-    border: dark ? '#26262C' : '#ECECE8',
-    up: dark ? PROFIT_DARK : PROFIT,
-    down: dark ? LOSS_DARK : LOSS,
+    axis: '#6E6490',
+    grid: '#ffffff10',
+    tooltipBg: '#0B0916',
+    tooltipText: '#E4F0EC',
+    border: '#ffffff1a',
+    up: PROFIT,
+    down: LOSS,
   }
 }
 
@@ -163,7 +158,7 @@ export function PerSessionChart({ data }: { data: ChartPoint[] }) {
 
 export function ChartEmpty({ children }: { children: string }) {
   return (
-    <div className="flex h-[220px] items-center justify-center text-[15px] text-ink-soft dark:text-zinc-500">
+    <div className="flex h-[220px] items-center justify-center text-[15px] text-ink-faint">
       {children}
     </div>
   )

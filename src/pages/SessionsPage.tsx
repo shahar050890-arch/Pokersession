@@ -49,8 +49,8 @@ export default function SessionsPage() {
         title={t.list.emptyTitle}
         body={t.list.emptyBody}
         action={
-          <Link to="/add" className="btn block text-center">
-            {t.list.emptyCta}
+          <Link to="/add" className="tube block">
+            <span>{t.list.emptyCta}</span>
           </Link>
         }
       />
@@ -87,7 +87,7 @@ export default function SessionsPage() {
             setGameFilter('all')
             setLocationFilter('all')
           }}
-          className={`chip ${hasFilter ? '' : 'chip-on'}`}
+          className="chip-pill" data-on={!hasFilter}
         >
           {t.list.all}
         </button>
@@ -95,7 +95,7 @@ export default function SessionsPage() {
           <button
             key={g}
             onClick={() => setGameFilter(gameFilter === g ? 'all' : g)}
-            className={`chip ${gameFilter === g ? 'chip-on' : ''}`}
+            className="chip-pill" data-on={gameFilter === g}
           >
             {GAME_LABEL[g]}
           </button>
@@ -104,7 +104,7 @@ export default function SessionsPage() {
           <button
             key={l}
             onClick={() => setLocationFilter(locationFilter === l ? 'all' : l)}
-            className={`chip ${locationFilter === l ? 'chip-on' : ''}`}
+            className="chip-pill" data-on={locationFilter === l}
           >
             {l}
           </button>
@@ -115,7 +115,7 @@ export default function SessionsPage() {
       {deleteError && <ErrorNote>{deleteError}</ErrorNote>}
 
       {filtered.length === 0 ? (
-        <p className="surface px-5 py-10 text-center text-[15px] text-ink-soft dark:text-zinc-400">
+        <p className="surface px-5 py-10 text-center text-[15px] text-ink-soft">
           {t.list.noMatch}
         </p>
       ) : (
@@ -125,7 +125,7 @@ export default function SessionsPage() {
             return (
               <section key={key}>
                 <div className="mb-2 flex items-baseline justify-between px-1">
-                  <h2 className="text-[14px] font-semibold text-ink-soft dark:text-zinc-400">
+                  <h2 className="section-label">
                     {formatMonth(key)}
                   </h2>
                   <span className={`num text-[14px] font-semibold ${moneyClass(monthProfit)}`}>
@@ -133,7 +133,7 @@ export default function SessionsPage() {
                   </span>
                 </div>
 
-                <div className="surface divide-y divide-line overflow-hidden dark:divide-night-line">
+                <div className="surface divide-y divide-hair-soft overflow-hidden">
                   {list.map((s) => {
                     const open = openId === s.id
                     return (
@@ -151,7 +151,7 @@ export default function SessionsPage() {
                               <span className="block truncate text-[16px] font-medium">
                                 {s.location || GAME_LABEL[s.game_type]}
                               </span>
-                              <span className="mt-0.5 block text-[13px] text-ink-soft dark:text-zinc-500">
+                              <span className="mt-0.5 block text-[12.5px] text-ink-faint">
                                 {relativeDate(s.date, { today: t.form.today, yesterday: t.form.yesterday })}
                                 {s.rebuys > 0 ? ` · ${t.list.entries(s.rebuys + 1)}` : ''}
                               </span>
@@ -163,7 +163,7 @@ export default function SessionsPage() {
                         </button>
 
                         {open && (
-                          <div className="border-t hairline bg-paper/60 px-5 py-4 dark:bg-night-bg/40">
+                          <div className="border-t border-hair-soft bg-sunken/60 px-5 py-4">
                             <dl className="space-y-2 text-[14px]">
                               {(
                                 [
@@ -182,14 +182,14 @@ export default function SessionsPage() {
                                 ] as const
                               ).map(([k, v]) => (
                                 <div key={k} className="flex justify-between">
-                                  <dt className="text-ink-soft dark:text-zinc-500">{k}</dt>
+                                  <dt className="text-ink-faint">{k}</dt>
                                   <dd className="num font-medium">{v}</dd>
                                 </div>
                               ))}
                             </dl>
 
                             {s.notes && (
-                              <p className="mt-3 rounded-xl bg-card px-3.5 py-2.5 text-[14px] leading-relaxed text-ink-soft dark:bg-night-card dark:text-zinc-400">
+                              <p className="mt-3 rounded-control bg-sunken px-3.5 py-2.5 text-[14px] leading-relaxed text-ink-soft">
                                 {s.notes}
                               </p>
                             )}
@@ -198,13 +198,13 @@ export default function SessionsPage() {
                               <div className="mt-4 flex gap-2">
                                 <button
                                   onClick={() => void confirmDelete(s.id)}
-                                  className="flex-1 rounded-xl bg-down py-2.5 text-[15px] font-semibold text-white"
+                                  className="flex-1 rounded-tube bg-loss py-2.5 text-[15px] font-semibold text-room"
                                 >
                                   {t.list.confirmDelete}
                                 </button>
                                 <button
                                   onClick={() => setPendingDelete(null)}
-                                  className="flex-1 rounded-xl border border-line py-2.5 text-[15px] font-medium text-ink-soft dark:border-night-line dark:text-zinc-300"
+                                  className="plaque flex-1 !py-2.5 !text-[14px]"
                                 >
                                   {t.list.cancel}
                                 </button>
@@ -213,14 +213,14 @@ export default function SessionsPage() {
                               <div className="mt-4 flex gap-2">
                                 <button
                                   onClick={() => navigate(`/sessions/${s.id}/edit`)}
-                                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-[15px] font-medium dark:border-night-line"
+                                  className="plaque flex flex-1 items-center justify-center gap-2 !py-2.5 !text-[14px]"
                                 >
                                   <PencilIcon />
                                   {t.list.edit}
                                 </button>
                                 <button
                                   onClick={() => setPendingDelete(s.id)}
-                                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-[15px] font-medium text-down dark:border-night-line dark:text-down-night"
+                                  className="flex flex-1 items-center justify-center gap-2 rounded-tube border border-loss/40 py-2.5 text-[14px] font-semibold text-loss"
                                 >
                                   <TrashIcon />
                                   {t.list.delete}

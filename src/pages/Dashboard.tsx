@@ -7,7 +7,7 @@ import type { PokerSession } from '../lib/types'
 import BudgetCard from '../components/BudgetCard'
 import StatRow from '../components/StatRow'
 import { ChartEmpty, CumulativeChart, PerSessionChart, type ChartPoint } from '../components/Charts'
-import { CardFan, ChipStack, Felt, SuitRule } from '../components/decor'
+import { CardFan, Felt, NeonSign, RecentHand, SuitRule } from '../components/decor'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 import { useI18n } from '../context/I18nContext'
 
@@ -92,14 +92,14 @@ export default function Dashboard() {
           title={t.dash.emptyTitle}
           body={t.dash.emptyBody}
           action={
-            <Link to="/add" className="btn block text-center">
-              {t.dash.emptyCta}
+            <Link to="/add" className="tube block">
+              <span>{t.dash.emptyCta}</span>
             </Link>
           }
         />
-        <p className="mt-2 text-center text-[14px] text-ink-soft dark:text-zinc-500">
+        <p className="mt-2 text-center text-[14px] text-ink-faint">
           {t.dash.emptyOr}{' '}
-          <Link to="/settings" className="font-medium text-ink underline underline-offset-4 dark:text-zinc-200">
+          <Link to="/settings" className="font-medium text-jade underline underline-offset-4">
             {t.dash.emptySettings}
           </Link>{' '}
           {t.dash.emptyFirst}
@@ -111,22 +111,26 @@ export default function Dashboard() {
   return (
     <div className="space-y-4">
       {/* One figure leads the screen, sitting on the table it came from. */}
-      <Felt className="rounded-xl3 px-6 py-7 shadow-lift">
-        {/* Decoration, not a column — laid out over the felt so it can never
-            squeeze the figures into a second line. */}
-        <ChipStack className="pointer-events-none absolute -bottom-3 -start-3 h-[104px] w-[92px]" />
-        <div className="relative ps-[72px]">
-          <p className="text-[13px] font-medium text-white/60">{t.dash.totalProfit}</p>
-          <p
-            className="num mt-1 text-hero"
-            style={{ color: stats.totalProfit < 0 ? '#FCA5A5' : '#FFFFFF' }}
-          >
-            {formatSigned(stats.totalProfit)}
-          </p>
-          <p className="mt-2 text-[15px] text-white/70">
-            {t.dash.summaryLine(stats.count, formatMoney(stats.totalIn))}
-          </p>
-        </div>
+      <Felt className="rounded-surface px-[18px] py-[18px]">
+        <NeonSign>after hours</NeonSign>
+        <p className="mt-2.5 text-[12px] text-white/[0.52]">{t.dash.totalProfit}</p>
+        <p
+          className="num mt-0.5 text-hero text-white"
+          style={{ textShadow: '0 0 12px #0FBFA088, 0 0 34px #0FBFA044' }}
+        >
+          {formatSigned(stats.totalProfit)}
+        </p>
+        <p className="mt-1 text-[13px] text-white/[0.63]">
+          {t.dash.summaryLine(stats.count, formatMoney(stats.totalIn))}
+        </p>
+        <RecentHand
+          sessions={sessions.slice(0, 3).map((s) => ({
+            id: s.id,
+            profit: s.profit,
+            gameType: s.game_type,
+          }))}
+          format={formatSigned}
+        />
       </Felt>
 
       {error && <ErrorNote>{error}</ErrorNote>}
@@ -148,7 +152,7 @@ export default function Dashboard() {
           <button
             key={value}
             onClick={() => setRange(value)}
-            className={`chip ${range === value ? 'chip-on' : ''}`}
+            className="chip-pill" data-on={range === value}
           >
             {label}
           </button>

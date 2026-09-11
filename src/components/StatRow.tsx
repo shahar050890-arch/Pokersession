@@ -10,10 +10,10 @@ interface Stat {
  */
 export default function StatRow({ stats }: { stats: Stat[] }) {
   return (
-    <section className="surface divide-y divide-line px-5 dark:divide-night-line">
+    <section className="surface divide-y divide-hair-soft px-5">
       {stats.map((s) => (
         <div key={s.label} className="flex items-center justify-between py-3.5">
-          <span className="text-[15px] text-ink-soft dark:text-zinc-400">{s.label}</span>
+          <span className="text-[15px] text-ink-soft">{s.label}</span>
           <span className={`num text-[17px] font-semibold ${s.tone ?? ''}`}>{s.value}</span>
         </div>
       ))}

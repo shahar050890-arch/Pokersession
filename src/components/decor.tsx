@@ -44,24 +44,36 @@ export function SuitField({ opacity = 0.05, scale = 46 }: { opacity?: number; sc
  */
 export function Felt({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`relative overflow-hidden text-white ${className}`}>
-      <div className="absolute inset-0 bg-felt" />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(115% 85% at 72% -15%, rgba(255,255,255,0.20), rgba(255,255,255,0) 58%),' +
-            'radial-gradient(110% 90% at 15% 118%, rgba(0,0,0,0.34), rgba(0,0,0,0) 62%)',
-        }}
-      />
+    <div
+      className={`relative overflow-hidden border border-hair-soft text-white ${className}`}
+      style={{ background: 'linear-gradient(158deg, #0D3A34, #07211F)' }}
+    >
       <div className="absolute inset-0 text-white">
-        <SuitField opacity={0.055} scale={38} />
+        <SuitField opacity={0.05} scale={38} />
       </div>
-      {/* rail highlight */}
-      <div className="absolute inset-x-0 top-0 h-px bg-white/20" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-brass/30" />
+      {/* The two tubes running along the table's edges. */}
+      <div
+        className="absolute inset-x-0 top-0 h-px"
+        style={{ background: 'linear-gradient(90deg, transparent, #C99BFF66, transparent)' }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-px"
+        style={{ background: 'linear-gradient(90deg, transparent, #0FBFA066, transparent)' }}
+      />
       <div className="relative">{children}</div>
     </div>
+  )
+}
+
+/** The neon sign above the table. Decorative by design, and the only such mark. */
+export function NeonSign({ children }: { children: string }) {
+  return (
+    <p
+      className="text-[11px] font-bold uppercase tracking-[0.26em] text-violet-sign"
+      style={{ textShadow: '0 0 8px #7B2CFFcc, 0 0 26px #7B2CFF77' }}
+    >
+      {children}
+    </p>
   )
 }
 
@@ -108,7 +120,7 @@ export function BudgetChip({ ratio, color, size = 96, caption = '' }: ChipProps)
       ))}
 
       {/* spent track + arc */}
-      <circle cx="55" cy="55" r={r} fill="none" className="stroke-line dark:stroke-night-line" strokeWidth="8" />
+      <circle cx="55" cy="55" r={r} fill="none" stroke="#ffffff12" strokeWidth="8" />
       <circle
         cx="55" cy="55" r={r} fill="none"
         stroke={color} strokeWidth="8" strokeLinecap="round"
@@ -118,7 +130,7 @@ export function BudgetChip({ ratio, color, size = 96, caption = '' }: ChipProps)
       />
 
       {/* face */}
-      <circle cx="55" cy="55" r="33" className="fill-card dark:fill-night-card" />
+      <circle cx="55" cy="55" r="33" fill="#08110F" />
       <circle cx="55" cy="55" r="33" fill="none" stroke={color} strokeOpacity="0.35" strokeWidth="1.5" />
       <circle cx="55" cy="55" r="28" fill="none" stroke={color} strokeOpacity="0.18" strokeWidth="1" />
       <circle cx="55" cy="47" r="26" fill="url(#chip-face)" opacity="0.5" />
@@ -164,12 +176,12 @@ export function CardFan({ className = 'h-20 w-28' }: { className?: string }) {
     <svg viewBox="0 0 140 104" className={className} aria-hidden>
       <defs>
         <filter id="fan-shadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#14141A" floodOpacity="0.18" />
+          <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.55" />
         </filter>
       </defs>
 
       {FAN.map((c, i) => {
-        const fill = c.red ? 'fill-suit-red' : 'fill-ink dark:fill-zinc-100'
+        const fill = c.red ? '#C8102E' : '#14141A'
         const last = i === FAN.length - 1
         return (
           <g
@@ -179,14 +191,15 @@ export function CardFan({ className = 'h-20 w-28' }: { className?: string }) {
           >
             <rect
               width="46" height="68" rx="6"
-              className="fill-card stroke-line dark:fill-night-card dark:stroke-night-line"
+              fill="#F9F6EE"
+              stroke="#00000018"
               strokeWidth="1.25"
             />
             {/* corner index */}
-            <text x="10" y="16" textAnchor="middle" fontSize="13" fontWeight="700" className={fill}>
+            <text x="10" y="16" textAnchor="middle" fontSize="13" fontWeight="700" fill={fill}>
               {c.rank}
             </text>
-            <path d={c.suit} transform="translate(6.4 19) scale(0.115)" className={fill} />
+            <path d={c.suit} transform="translate(6.4 19) scale(0.115)" fill={fill} />
             {/* the top card has room for a full pip */}
             {last && <path d={c.suit} transform="translate(12 30) scale(0.34)" className={fill} />}
           </g>
@@ -208,10 +221,10 @@ export function SuitMark({ type, className = '' }: { type: 'cash' | 'tournament'
     <span
       aria-hidden
       className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px]
-                  ${red ? 'bg-suit-red/[0.09]' : 'bg-ink/[0.06] dark:bg-white/[0.08]'} ${className}`}
+                  ${red ? 'bg-loss/[0.12]' : 'bg-white/[0.055]'} ${className}`}
     >
       <svg viewBox="0 0 64 64" className="h-[15px] w-[15px]">
-        <path d={path} className={red ? 'fill-suit-red' : 'fill-ink dark:fill-zinc-200'} />
+        <path d={path} fill={red ? '#FF8DA3' : '#CFE6DA'} />
       </svg>
     </span>
   )
@@ -331,18 +344,18 @@ export function SuitRule({ className = '' }: { className?: string }) {
   const suits = [SPADE, HEART, CLUB, DIAMOND]
   return (
     <div className={`flex items-center gap-3 ${className}`} aria-hidden>
-      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-line dark:to-night-line" />
+      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-hair" />
       <span className="flex items-center gap-1.5">
         {suits.map((d, i) => (
           <svg key={i} viewBox="0 0 64 64" className="h-[9px] w-[9px]">
             <path
               d={d}
-              className={i === 1 || i === 3 ? 'fill-suit-red/55' : 'fill-ink/30 dark:fill-zinc-500'}
+              fill={i === 1 || i === 3 ? '#C8102E8c' : '#ffffff40'}
             />
           </svg>
         ))}
       </span>
-      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-line dark:to-night-line" />
+      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-hair" />
     </div>
   )
 }
@@ -356,5 +369,68 @@ export function FeltHeader({ title, right }: { title: string; right?: ReactNode 
         {right}
       </div>
     </Felt>
+  )
+}
+
+const RANKS = ['A', 'K', 'Q', 'J', '10'] as const
+
+interface HandCard {
+  id: string
+  profit: number
+  gameType: 'cash' | 'tournament'
+}
+
+/**
+ * The most recent hands, dealt face up on the felt. Each card carries a real
+ * figure — the rank is positional, the suit follows the game type, and the rim
+ * light follows the result.
+ */
+export function RecentHand({
+  sessions,
+  format,
+}: {
+  sessions: HandCard[]
+  format: (value: number) => string
+}) {
+  if (sessions.length === 0) return null
+
+  return (
+    <div className="mt-3.5 flex gap-2.5">
+      {sessions.slice(0, 3).map((s, i) => {
+        const up = s.profit >= 0
+        const { path, red } = SUIT_FOR[s.gameType]
+        const rim = up ? '#0FBFA0' : '#FF4D6D'
+        return (
+          <div
+            key={s.id}
+            className="relative flex min-h-[84px] flex-1 flex-col overflow-hidden rounded-[10px] p-2.5"
+            style={{
+              background: '#F9F6EE',
+              boxShadow: `0 0 0 1px ${rim}40, 0 0 12px -1px ${rim}2e, 0 6px 16px #0009`,
+            }}
+          >
+            <span className="flex items-center gap-[3px] text-[12px] font-extrabold">
+              <span style={{ color: red ? '#C8102E' : '#14141A' }}>{RANKS[i]}</span>
+              <svg viewBox="0 0 64 64" className="h-[11px] w-[11px]">
+                <path d={path} fill={red ? '#C8102E' : '#14141A'} />
+              </svg>
+            </span>
+            <svg
+              viewBox="0 0 64 64"
+              className="pointer-events-none absolute -inset-x-2 bottom-1.5 ms-auto h-[46px] w-[46px]"
+              style={{ insetInlineEnd: -9, insetInlineStart: 'auto' }}
+            >
+              <path d={path} fill={red ? '#C8102E' : '#14141A'} opacity="0.12" />
+            </svg>
+            <span
+              className="num relative mt-auto text-[15px] font-extrabold"
+              style={{ color: up ? '#0A8F79' : '#D2273F' }}
+            >
+              {format(s.profit)}
+            </span>
+          </div>
+        )
+      })}
+    </div>
   )
 }

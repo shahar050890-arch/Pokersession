@@ -124,8 +124,8 @@ export default function SessionFormPage() {
   if (id && !loading && !editing) {
     return (
       <div className="pt-10 text-center">
-        <p className="text-ink-soft dark:text-zinc-400">{t.form.notFound}</p>
-        <button className="btn mt-6" onClick={() => navigate('/sessions')}>
+        <p className="text-ink-soft">{t.form.notFound}</p>
+        <button className="plaque mt-6" onClick={() => navigate('/sessions')}>
           {t.form.backToList}
         </button>
       </div>
@@ -212,7 +212,7 @@ export default function SessionFormPage() {
     <div className="pb-4">
       <header className="mb-4 flex items-center justify-between">
         <h1 className="text-[22px] font-bold tracking-tight">{id ? t.form.editTitle : t.form.newTitle}</h1>
-        <div className="flex shrink-0 rounded-full border border-line p-0.5 dark:border-night-line">
+        <div className="seg w-[190px] shrink-0">
           {(
             [
               ['cash', `♠ ${t.form.cash}`],
@@ -223,11 +223,7 @@ export default function SessionFormPage() {
               key={v}
               type="button"
               onClick={() => setGameType(v)}
-              className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
-                gameType === v
-                  ? 'bg-ink text-white dark:bg-white dark:text-night-bg'
-                  : 'text-ink-soft dark:text-zinc-400'
-              }`}
+              data-on={gameType === v}
             >
               {l}
             </button>
@@ -238,7 +234,7 @@ export default function SessionFormPage() {
       {/* Currency switch. Dollars are an input convenience only — what gets
           stored is always shekels, at the rate shown here. */}
       <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex rounded-full border border-line p-0.5 dark:border-night-line">
+        <div className="seg w-[104px]">
           {(
             [
               ['ILS', '₪'],
@@ -253,11 +249,8 @@ export default function SessionFormPage() {
                 setBuyIn('')
                 setCashOut('')
               }}
-              className={`num w-12 rounded-full py-1.5 text-[16px] font-bold transition ${
-                currency === v
-                  ? 'bg-ink text-white dark:bg-white dark:text-night-bg'
-                  : 'text-ink-soft dark:text-zinc-400'
-              }`}
+              className="num"
+              data-on={currency === v}
             >
               {l}
             </button>
@@ -265,23 +258,23 @@ export default function SessionFormPage() {
         </div>
 
         {currency === 'USD' && (
-          <span className="text-[13px] text-ink-soft dark:text-zinc-400">
+          <span className="text-[13px] text-ink-soft">
             {rateValue !== null ? (
               <>
                 {t.form.rate} <span className="num font-semibold">{formatRate(rateValue)}</span>
-                {rate && isStale(rate) && <span className="text-flag"> · {t.form.rateStale}</span>}
+                {rate && isStale(rate) && <span className="text-brass"> · {t.form.rateStale}</span>}
               </>
             ) : rateLoading ? (
               t.form.rateLoading
             ) : (
-              <span className="text-down dark:text-down-night">{t.form.rateNone}</span>
+              <span className="text-loss">{t.form.rateNone}</span>
             )}
           </span>
         )}
       </div>
 
       {/* The two figures that matter. Tap one to aim the keypad at it. */}
-      <div className="surface overflow-hidden">
+      <div>
         {(
           [
             ['in', entries > 1 ? t.form.singleBuyIn : t.form.howMuchIn, buyIn],
@@ -294,18 +287,19 @@ export default function SessionFormPage() {
               key={key}
               type="button"
               onClick={() => setSlot(key)}
-              className={`flex w-full items-baseline justify-between px-5 py-4 text-start transition ${
-                i === 1 ? 'border-t hairline' : ''
-              } ${on ? 'bg-line/40 dark:bg-night-line/40' : ''}`}
+              className={`flex w-full items-baseline justify-between rounded-control bg-sunken px-4 py-3.5
+                          text-start transition ${i === 1 ? 'mt-2' : ''} ${
+                            on ? 'shadow-sunken-on' : 'shadow-sunken'
+                          }`}
             >
-              <span className={`text-[15px] ${on ? 'font-semibold' : 'text-ink-soft dark:text-zinc-400'}`}>
+              <span className={`text-[15px] ${on ? 'font-semibold text-ink' : 'text-ink-soft'}`}>
                 {label}
               </span>
-              <span className="flex items-baseline gap-1">
-                <span className={`num text-[30px] font-bold ${value === '' ? 'text-ink-faint' : ''}`}>
+              <span className="flex items-baseline gap-1.5">
+                <span className={`num text-[28px] font-extrabold ${value === '' ? 'text-ink-dim' : ''}`}>
                   {value === '' ? '0' : Number(value).toLocaleString('he-IL')}
                 </span>
-                <span className="num text-[17px] text-ink-soft dark:text-zinc-500">{symbol}</span>
+                <span className="num text-[16px] text-brass">{symbol}</span>
               </span>
             </button>
           )
@@ -313,11 +307,11 @@ export default function SessionFormPage() {
       </div>
 
       {currency !== display && rateValue !== null && (typedBuyIn > 0 || typedCashOut > 0) && (
-        <div className="mt-3 flex items-center justify-between rounded-xl2 border border-line bg-card px-4 py-3 dark:border-night-line dark:bg-night-card">
-          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">{t.form.willShowAs}</span>
+        <div className="mt-3 flex items-center justify-between rounded-control border border-hair-soft bg-panel px-4 py-3">
+          <span className="text-[13px] font-medium text-ink-soft">{t.form.willShowAs}</span>
           <span className="num text-[15px] font-semibold">
-            {formatMoney(buyInNum)} <span className="text-ink-faint">{t.form.inShort}</span> ·{' '}
-            {formatMoney(cashOutNum)} <span className="text-ink-faint">{t.form.outShort}</span>
+            {formatMoney(buyInNum)} <span className="text-ink-dim">{t.form.inShort}</span> ·{' '}
+            {formatMoney(cashOutNum)} <span className="text-ink-dim">{t.form.outShort}</span>
           </span>
         </div>
       )}
@@ -325,8 +319,8 @@ export default function SessionFormPage() {
       {/* The multiplier is the easiest thing to get wrong, so it is spelled out
           in full rather than left implied by a small "total" label. */}
       {entries > 1 && buyInNum > 0 && (
-        <div className="mt-3 flex items-center justify-between rounded-xl2 border border-brass/40 bg-brass/[0.07] px-4 py-3">
-          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">{t.form.totalIn}</span>
+        <div className="mt-3 flex items-center justify-between rounded-control border border-brass/40 bg-brass/[0.07] px-4 py-3">
+          <span className="text-[13px] font-medium text-ink-soft">{t.form.totalIn}</span>
           <span className="num text-[17px] font-bold">
             {entries} × {formatMoney(buyInNum)} ={' '}
             <span className="text-[20px]">{formatMoney(totalIn)}</span>
@@ -351,9 +345,9 @@ export default function SessionFormPage() {
           onClick={() => setActive('')}
           disabled={active === ''}
           aria-label={t.form.clear}
-          className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full
-                     border border-dashed border-line text-ink-faint transition active:scale-90
-                     disabled:opacity-25 dark:border-night-line"
+          className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full
+                     border-2 border-dashed border-hair text-ink-faint transition active:scale-90
+                     disabled:opacity-25"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
             className="h-5 w-5" strokeLinecap="round">
@@ -374,7 +368,7 @@ export default function SessionFormPage() {
         />
       </div>
 
-      <div className="surface mt-4 divide-y divide-line px-5 dark:divide-night-line">
+      <div className="surface mt-3.5 divide-y divide-hair-soft px-4">
         <div className="py-4">
           <Stepper
             label={t.form.timesIn}
@@ -391,14 +385,14 @@ export default function SessionFormPage() {
         </div>
 
         <div className="py-4">
-          <p className="label mb-2.5">{t.form.when}</p>
+          <p className="label mb-2">{t.form.when}</p>
           <div className="rail">
             {dateChips.map(([value, label]) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => setDate(value)}
-                className={`chip ${date === value ? 'chip-on' : ''}`}
+                className="chip-pill" data-on={date === value}
               >
                 {label}
               </button>
@@ -407,16 +401,15 @@ export default function SessionFormPage() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className={`chip num min-w-[9.5rem] ${
-                dateChips.every(([v]) => v !== date) ? 'chip-on' : ''
-              }`}
+              className="chip-pill num min-w-[9.5rem]"
+              data-on={dateChips.every(([v]) => v !== date)}
               aria-label={t.form.otherDate}
             />
           </div>
         </div>
 
         <div className="py-4">
-          <p className="label mb-2.5">{t.form.where}</p>
+          <p className="label mb-2">{t.form.where}</p>
           {customLocation ? (
             <input
               autoFocus
@@ -435,12 +428,12 @@ export default function SessionFormPage() {
                   key={l}
                   type="button"
                   onClick={() => setLocation(location === l ? '' : l)}
-                  className={`chip ${location === l ? 'chip-on' : ''}`}
+                  className="chip-pill" data-on={location === l}
                 >
                   {l}
                 </button>
               ))}
-              <button type="button" onClick={() => setCustomLocation(true)} className="chip">
+              <button type="button" onClick={() => setCustomLocation(true)} className="chip-pill">
                 {locations.length === 0 ? t.form.addPlace : t.form.otherPlace}
               </button>
             </div>
@@ -456,7 +449,7 @@ export default function SessionFormPage() {
             <span className="label">{t.form.more}</span>
             <svg
               viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              className={`h-4 w-4 text-ink-faint transition-transform ${
+              className={`h-4 w-4 text-ink-dim transition-transform ${
                 showMore ? 'rotate-90' : '-rotate-90 rtl:rotate-90 rtl:-scale-x-100'
               }`}
               strokeLinecap="round" strokeLinejoin="round"
@@ -491,22 +484,22 @@ export default function SessionFormPage() {
       {error && <div className="mt-4"><ErrorNote>{error}</ErrorNote></div>}
 
       {warning && (
-        <div className="mt-4 rounded-xl2 border border-flag/40 bg-flag-soft p-4 dark:border-flag-night/30 dark:bg-flag/10">
-          <p className="font-semibold text-flag dark:text-flag-night">{t.form.overTitle}</p>
-          <p className="mt-1 text-[15px] leading-relaxed text-ink dark:text-zinc-300">{warning}</p>
+        <div className="mt-4 rounded-control border border-brass/40 bg-brass/[0.08] p-4">
+          <p className="font-semibold text-brass">{t.form.overTitle}</p>
+          <p className="mt-1 text-[15px] leading-relaxed text-ink">{warning}</p>
           <div className="mt-4 flex gap-3">
             <button
               type="button"
               onClick={() => void save()}
               disabled={busy}
-              className="flex-1 rounded-xl bg-flag py-3 text-[16px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
+              className="flex-1 rounded-tube bg-brass py-3 text-[16px] font-semibold text-room transition active:scale-[0.98] disabled:opacity-50"
             >
               {busy ? t.form.saving : t.form.overSave}
             </button>
             <button
               type="button"
               onClick={() => setWarning(null)}
-              className="flex-1 rounded-xl border border-line py-3 text-[16px] font-medium text-ink-soft dark:border-night-line dark:text-zinc-300"
+              className="plaque flex-1"
             >
               {t.form.overBack}
             </button>
@@ -515,7 +508,7 @@ export default function SessionFormPage() {
       )}
 
       {id && !warning && (
-        <button type="button" onClick={() => navigate('/sessions')} className="btn-quiet mt-3">
+        <button type="button" onClick={() => navigate('/sessions')} className="plaque mt-3">
           {t.form.cancel}
         </button>
       )}

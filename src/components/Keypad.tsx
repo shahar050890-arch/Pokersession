@@ -26,9 +26,7 @@ export default function Keypad({ onDigit, onBackspace, onDone, doneLabel, busy =
           key={k}
           type="button"
           onClick={() => onDigit(k)}
-          className="rounded-xl2 bg-card py-4 text-[26px] font-semibold text-ink shadow-soft transition
-                     active:scale-95 active:bg-line dark:bg-night-card dark:text-zinc-100
-                     dark:shadow-none dark:active:bg-night-line num"
+          className="key num"
         >
           {k}
         </button>
@@ -38,9 +36,7 @@ export default function Keypad({ onDigit, onBackspace, onDone, doneLabel, busy =
         type="button"
         onClick={onBackspace}
         aria-label={t.a11y.deleteDigit}
-        className="flex items-center justify-center rounded-xl2 bg-card py-4 text-ink-soft shadow-soft
-                   transition active:scale-95 active:bg-line dark:bg-night-card dark:text-zinc-400
-                   dark:shadow-none dark:active:bg-night-line"
+        className="key grid place-items-center !text-ink-dim"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6"
           strokeLinecap="round" strokeLinejoin="round">
@@ -53,14 +49,14 @@ export default function Keypad({ onDigit, onBackspace, onDone, doneLabel, busy =
         onClick={onDone}
         disabled={busy}
         dir="rtl"
-        className="col-span-3 mt-1 flex items-center justify-center gap-2 rounded-xl2 bg-ink py-4
-                   text-[17px] font-semibold text-white transition active:scale-[0.985]
-                   disabled:opacity-60 disabled:active:scale-100 dark:bg-white dark:text-night-bg"
+        className="tube col-span-3 mt-1.5"
       >
-        {busy && (
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-night-bg/30 dark:border-t-night-bg" />
-        )}
-        {busy ? t.form.saving : doneLabel}
+        <span className="flex items-center justify-center gap-2">
+          {busy && (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-jade/30 border-t-jade" />
+          )}
+          {busy ? t.form.saving : doneLabel}
+        </span>
       </button>
     </div>
   )

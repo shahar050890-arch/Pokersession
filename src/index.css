@@ -6,33 +6,46 @@
   html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    color-scheme: dark;
   }
 
   body {
-    @apply bg-paper text-ink antialiased dark:bg-night-bg dark:text-zinc-100;
+    @apply bg-room text-ink antialiased;
+    position: relative;
+    isolation: isolate;
   }
 
-  /* A barely-there suit weave on the page itself — felt you notice only if
-     you look for it. Small marks at low contrast read as texture; large ones
-     read as clip art. Sits under the content, never over it. */
+  /* The room: a violet cast from above, jade rising from the table. Fixed, so
+     it never adds to the scroll area. */
   body::before {
+    content: '';
+    position: fixed;
+    inset-inline: 0;
+    top: -60px;
+    height: 420px;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(78% 55% at 50% 15%, #7B2CFF45, transparent 72%),
+      radial-gradient(88% 40% at 50% 55%, #0FBFA026, transparent 70%);
+    filter: blur(10px);
+  }
+
+  /* A trace of grain, so the flat areas are not perfectly flat. */
+  body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='%2314141A' fill-opacity='0.018' transform='rotate(12 32 32)'%3E%3Cpath d='M14 6c-.6 1.8-7.2 6.3-7.2 10.4 0 2.3 1.7 4 3.9 4 1.3 0 2.3-.5 3-1.3-.3 1.8-1 3.1-2.1 3.9-.5.3-.3 1 .3 1h4.3c.5 0 .8-.7.3-1-1-.8-1.8-2.1-2.1-3.9.6.8 1.7 1.3 3 1.3 2.2 0 3.9-1.7 3.9-4C21.2 12.3 14.6 7.8 14 6z'/%3E%3Cpath d='M46 36l4.6 5.2L46 46.4l-4.6-5.2z'/%3E%3Cpath d='M50 8l3.4 3.9L50 15.8l-3.4-3.9z'/%3E%3Cpath d='M20 44c-.5 1.5-6 5.2-6 8.6 0 1.9 1.4 3.3 3.2 3.3 1.1 0 1.9-.4 2.5-1.1-.3 1.5-.9 2.6-1.8 3.2-.4.2-.2.8.3.8h3.6c.4 0 .7-.6.2-.8-.8-.6-1.5-1.7-1.7-3.2.5.7 1.4 1.1 2.5 1.1 1.8 0 3.2-1.4 3.2-3.3C26 49.2 20.5 45.5 20 44z'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: 64px 64px;
+    opacity: 0.5;
+    background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px);
   }
 
-  :root.dark body::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.026' transform='rotate(12 32 32)'%3E%3Cpath d='M14 6c-.6 1.8-7.2 6.3-7.2 10.4 0 2.3 1.7 4 3.9 4 1.3 0 2.3-.5 3-1.3-.3 1.8-1 3.1-2.1 3.9-.5.3-.3 1 .3 1h4.3c.5 0 .8-.7.3-1-1-.8-1.8-2.1-2.1-3.9.6.8 1.7 1.3 3 1.3 2.2 0 3.9-1.7 3.9-4C21.2 12.3 14.6 7.8 14 6z'/%3E%3Cpath d='M46 36l4.6 5.2L46 46.4l-4.6-5.2z'/%3E%3Cpath d='M50 8l3.4 3.9L50 15.8l-3.4-3.9z'/%3E%3Cpath d='M20 44c-.5 1.5-6 5.2-6 8.6 0 1.9 1.4 3.3 3.2 3.3 1.1 0 1.9-.4 2.5-1.1-.3 1.5-.9 2.6-1.8 3.2-.4.2-.2.8.3.8h3.6c.4 0 .7-.6.2-.8-.8-.6-1.5-1.7-1.7-3.2.5.7 1.4 1.1 2.5 1.1 1.8 0 3.2-1.4 3.2-3.3C26 49.2 20.5 45.5 20 44z'/%3E%3C/g%3E%3C/svg%3E");
-  }
-
-  /* Every figure in this app is money or a count — keep digits from jittering. */
   .num {
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
   }
 
   input[type='number']::-webkit-outer-spin-button,
@@ -43,62 +56,138 @@
   input[type='number'] {
     -moz-appearance: textfield;
   }
+
+  /* A native date control paints its own light chrome; force it into the room. */
+  input[type='date'] {
+    background-color: transparent;
+    color: inherit;
+    color-scheme: dark;
+  }
+  input[type='date']::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.45;
+    cursor: pointer;
+  }
+  input[type='date']::-webkit-date-and-time-value {
+    text-align: start;
+  }
 }
 
 @layer components {
-  /* A hairline border carries the edge; the shadow only lifts it off the paper. */
   .surface {
-    @apply rounded-xl2 border border-line bg-card shadow-soft
-           dark:border-night-line dark:bg-night-card dark:shadow-none;
+    @apply rounded-surface border border-hair-soft bg-panel;
   }
 
-  .hairline {
-    @apply border-line dark:border-night-line;
+  .surface-lit {
+    @apply rounded-surface border border-violet/30 bg-panel shadow-panel;
   }
 
   .label {
-    @apply text-[13px] font-medium text-ink-soft dark:text-zinc-400;
+    @apply text-[12.5px] font-medium text-ink-soft;
   }
 
+  .section-label {
+    @apply text-[12px] font-semibold tracking-[0.04em] text-ink-dim;
+  }
+
+  /*
+   * The primary action is a neon sign: a dark body with a lit jade tube, held
+   * by two brackets. Never a filled slab — that was the glare.
+   */
+  .tube {
+    @apply relative block w-full px-[9px];
+  }
+  .tube::before,
+  .tube::after {
+    content: '';
+    @apply absolute top-1/2 h-4 w-[5px] -translate-y-1/2 rounded-sm;
+    background: linear-gradient(180deg, #4a4270, #221e38);
+    box-shadow: inset 0 1px 0 #ffffff26;
+  }
+  .tube::before {
+    inset-inline-start: 0;
+  }
+  .tube::after {
+    inset-inline-end: 0;
+  }
+  .tube > span {
+    @apply block rounded-tube border-[1.5px] border-jade/70 py-[14px] text-center text-[16px]
+           font-bold text-jade shadow-tube transition active:scale-[0.99];
+    background: linear-gradient(180deg, #100d1f, #0a0816);
+    text-shadow: 0 0 10px #0fbfa0cc;
+  }
+  .tube > span:disabled,
+  .tube[data-busy='true'] > span {
+    @apply opacity-60;
+  }
+
+  /* The table's own signage, for anything secondary. */
+  .plaque {
+    @apply w-full rounded-tube py-[13px] text-center text-[15px] font-semibold text-[#D9CFA6]
+           shadow-plaque transition active:scale-[0.99];
+    background: linear-gradient(180deg, #161228, #0d0b18);
+  }
+
+  /* A recessed tray holding a raised, lit slab. */
+  .seg {
+    @apply flex rounded-control bg-sunken p-1;
+    box-shadow: inset 0 2px 6px #00000090, inset 0 0 0 1px #ffffff0d;
+  }
+  .seg > button {
+    @apply flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[14px]
+           font-semibold text-ink-dim transition;
+  }
+  .seg > button[data-on='true'] {
+    @apply font-bold text-jade shadow-slab;
+    background: linear-gradient(180deg, #1b1733, #12101f);
+  }
+
+  /* Somewhere to put something, rather than a box with a line around it. */
   .field {
-    @apply w-full rounded-xl border border-line bg-card px-4 py-3.5 text-[17px] text-ink outline-none
-           transition placeholder:text-ink-faint focus:border-ink/30 focus:ring-4 focus:ring-ink/5
-           dark:border-night-line dark:bg-night-card dark:text-zinc-100
-           dark:focus:border-white/30 dark:focus:ring-white/5;
+    @apply w-full rounded-control bg-sunken px-4 py-3.5 text-[17px] text-ink shadow-sunken
+           outline-none transition placeholder:text-ink-dim;
+  }
+  .field:focus {
+    @apply shadow-sunken-on;
   }
 
-  .btn {
-    @apply w-full rounded-xl2 bg-ink px-5 py-4 text-[17px] font-semibold text-white
-           transition active:scale-[0.985] disabled:opacity-35
-           dark:bg-white dark:text-night-bg;
+  /* A key that sits on something: lit along the top, shadowed underneath. */
+  .key {
+    @apply rounded-control py-[15px] text-center text-[24px] font-bold text-[#E9E4FA] shadow-key;
+    background: linear-gradient(180deg, #1a1630, #100d1e);
+  }
+  .key:active {
+    @apply text-jade shadow-key-down;
+    background: linear-gradient(180deg, #0c0a16, #141127);
   }
 
-  .btn-quiet {
-    @apply w-full rounded-xl2 border border-line bg-card px-5 py-4 text-[17px] font-medium text-ink-soft
-           transition active:scale-[0.985] dark:border-night-line dark:bg-night-card dark:text-zinc-300;
+  .chip-pill {
+    @apply shrink-0 whitespace-nowrap rounded-full border border-hair px-3.5 py-2 text-[14px]
+           font-medium text-ink-soft transition active:scale-95;
+  }
+  .chip-pill[data-on='true'] {
+    @apply border-jade/40 font-bold text-jade;
+    background: linear-gradient(180deg, #1b1733, #12101f);
+    box-shadow: inset 0 1px 0 #ffffff1a, 0 0 12px #0fbfa026;
   }
 
-  /* Tappable option pill — locations, dates, game type. */
-  .chip {
-    @apply shrink-0 whitespace-nowrap rounded-full border border-line bg-card px-4 py-2.5 text-[15px]
-           font-medium text-ink-soft transition active:scale-95
-           dark:border-night-line dark:bg-night-card dark:text-zinc-300;
+  /* A round control that matches the chips, for +/- and clear. */
+  .knob {
+    @apply grid h-9 w-9 place-items-center rounded-full text-[18px] text-ink transition active:scale-90
+           disabled:opacity-30;
+    background: linear-gradient(180deg, #1a1630, #100d1e);
+    box-shadow: inset 0 1px 0 #ffffff1a, 0 1px 3px #00000090;
   }
 
-  .chip-on {
-    @apply border-ink bg-ink text-white dark:border-white dark:bg-white dark:text-night-bg;
-  }
-
-  .row-press {
-    @apply transition active:bg-line/60 dark:active:bg-night-line/60;
-  }
-
-  /* Hides the scrollbar on the horizontal chip rails. */
   .rail {
     @apply flex gap-2 overflow-x-auto pb-1;
     scrollbar-width: none;
   }
   .rail::-webkit-scrollbar {
     display: none;
+  }
+
+  .row-press {
+    @apply transition active:bg-white/[0.04];
   }
 }

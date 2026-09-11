@@ -8,22 +8,23 @@ interface Props {
   onConfigure: () => void
 }
 
-/** Green with headroom, amber under 20% left, red once overdrawn. */
+/** Jade with headroom, brass under 20% left, red once overdrawn. */
 function tone(s: BudgetStatus) {
-  if (s.overBudget) return { hex: '#DC4B45', text: 'text-down dark:text-down-night' }
-  if (s.usedRatio > 0.8) return { hex: '#D98A2B', text: 'text-flag dark:text-flag-night' }
-  return { hex: '#0E9F6E', text: 'text-up dark:text-up-night' }
+  if (s.overBudget) return { hex: '#FF4D6D', text: 'text-loss' }
+  if (s.usedRatio > 0.8) return { hex: '#C9A227', text: 'text-brass' }
+  return { hex: '#0FBFA0', text: 'text-jade' }
 }
 
 export default function BudgetCard({ status, onConfigure }: Props) {
   const { t } = useI18n()
+
   if (!status.configured) {
     return (
-      <button onClick={onConfigure} className="surface row-press flex w-full items-center gap-4 px-5 py-4 text-start">
-        <BudgetChip ratio={0} color="#A1A1AA" size={56} />
+      <button onClick={onConfigure} className="surface-lit row-press flex w-full items-center gap-4 px-4 py-3.5 text-start">
+        <BudgetChip ratio={0} color="#6E6490" size={64} />
         <span>
           <span className="block text-[16px] font-semibold">{t.budget.setUp}</span>
-          <span className="mt-1 block text-[14px] leading-relaxed text-ink-soft dark:text-zinc-400">
+          <span className="mt-1 block text-[13.5px] leading-relaxed text-ink-soft">
             {t.budget.setUpBody}
           </span>
         </span>
@@ -34,17 +35,16 @@ export default function BudgetCard({ status, onConfigure }: Props) {
   const { hex, text } = tone(status)
 
   return (
-    <section className="surface flex items-center gap-5 px-5 py-4">
-      <BudgetChip ratio={status.usedRatio} color={hex} size={92} caption={t.budget.used} />
-
+    <section className="surface-lit flex items-center gap-3.5 p-3.5">
+      <BudgetChip ratio={status.usedRatio} color={hex} size={82} caption={t.budget.used} />
       <div className="min-w-0 flex-1">
-        <p className="label">{t.budget.remainingIn(formatMonth(currentMonthKey()))}</p>
-        <p className={`num mt-0.5 text-big ${text}`}>{formatMoney(status.remaining)}</p>
-        <p className="num mt-1 text-[13px] text-ink-faint">
+        <p className="text-[12px] text-ink-soft">{t.budget.remainingIn(formatMonth(currentMonthKey()))}</p>
+        <p className={`num text-[25px] font-extrabold ${text}`}>{formatMoney(status.remaining)}</p>
+        <p className="num text-[12px] text-ink-faint">
           {t.budget.spentOf(formatMoney(status.spent), formatMoney(status.allowance))}
         </p>
         {(status.carriedIn > 0 || status.overBudget) && (
-          <p className="mt-1 text-[13px] text-ink-soft dark:text-zinc-500">
+          <p className="mt-0.5 text-[12px] text-ink-dim">
             {status.overBudget
               ? t.budget.over(formatMoney(Math.abs(status.remaining)))
               : t.budget.carried(formatMoney(status.carriedIn))}
