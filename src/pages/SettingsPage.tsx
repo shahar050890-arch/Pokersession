@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useTheme } from '../context/ThemeContext'
@@ -28,6 +28,7 @@ export default function SettingsPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+  const submitting = useRef(false)
 
   useEffect(() => {
     if (loading || hydrated) return
@@ -40,11 +41,13 @@ export default function SettingsPage() {
   if (loading && !hydrated) return <Spinner />
 
   async function onSave() {
+    if (submitting.current) return
     const value = Number(budget)
     if (budget.trim() !== '' && (!Number.isFinite(value) || value < 0)) {
       setError('התקציב חייב להיות מספר חיובי')
       return
     }
+    submitting.current = true
     setBusy(true)
     setError(null)
     setSaved(false)
@@ -55,6 +58,7 @@ export default function SettingsPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'השמירה נכשלה')
     }
+    submitting.current = false
     setBusy(false)
   }
 

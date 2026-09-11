@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useData } from '../context/DataContext'
 import { budgetStatus } from '../lib/budget'
@@ -36,6 +36,9 @@ export default function SessionFormPage() {
   const [error, setError] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // setBusy only takes effect on the next render, so two taps in the same tick
+  // would both get past it. This flips synchronously and is the real guard.
+  const submitting = useRef(false)
 
   useEffect(() => {
     if (!id || hydrated || !editing) return
@@ -117,6 +120,8 @@ export default function SessionFormPage() {
   }
 
   async function save() {
+    if (submitting.current) return
+    submitting.current = true
     setBusy(true)
     setError(null)
 
@@ -137,6 +142,7 @@ export default function SessionFormPage() {
       navigate('/sessions')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'השמירה נכשלה')
+      submitting.current = false
       setBusy(false)
     }
   }
@@ -248,6 +254,7 @@ export default function SessionFormPage() {
           onDigit={onDigit}
           onBackspace={onBackspace}
           onDone={attemptSave}
+          busy={busy}
           doneLabel={id ? 'שמור שינויים' : 'שמור סשן'}
         />
       </div>
