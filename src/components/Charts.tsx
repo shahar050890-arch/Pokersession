@@ -13,7 +13,7 @@ import {
 } from 'recharts'
 import { useTheme } from '../context/ThemeContext'
 import { useI18n } from '../context/I18nContext'
-import { formatMoney, formatShortDate, formatSigned } from '../lib/format'
+import { formatMoney, formatShortDate, formatSigned, toDisplay } from '../lib/format'
 
 export interface ChartPoint {
   date: string
@@ -42,7 +42,8 @@ function useAxisColors() {
 }
 
 /** LRM-prefixed so a leading minus isn't reordered to the end inside RTL text. */
-function compact(value: number): string {
+function compact(ils: number): string {
+  const value = toDisplay(ils)
   const abs = Math.abs(value)
   const sign = value < 0 ? '-' : ''
   const body = abs >= 1000 ? `${Math.round(abs / 100) / 10}k` : String(Math.round(abs))

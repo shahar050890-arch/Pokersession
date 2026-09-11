@@ -3,9 +3,11 @@ import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useTheme } from '../context/ThemeContext'
 import { useI18n } from '../context/I18nContext'
+import { useCurrency } from '../context/CurrencyContext'
 import type { BudgetMode } from '../lib/types'
 import type { Lang } from '../lib/i18n'
 import { ErrorNote, Spinner } from '../components/ui'
+import { fromDisplay, toDisplay } from '../lib/format'
 import { ChipFace, FeltHeader, SuitRule } from '../components/decor'
 
 export default function SettingsPage() {
@@ -13,11 +15,13 @@ export default function SettingsPage() {
   const { settings, sessions, loading, saveSettings, resetAllData } = useData()
   const { theme, setTheme } = useTheme()
   const { t, lang, setLang } = useI18n()
+  const { display, setDisplay, fellBack } = useCurrency()
 
   const [budget, setBudget] = useState('')
   const [mode, setMode] = useState<BudgetMode>('fixed')
   const [rollover, setRollover] = useState(false)
   const [hydrated, setHydrated] = useState(false)
+  const shownIn = useRef(display)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
@@ -30,12 +34,25 @@ export default function SettingsPage() {
   const wiping = useRef(false)
 
   useEffect(() => {
-    if (loading || hydrated) return
-    setBudget(settings && settings.monthly_budget > 0 ? String(settings.monthly_budget) : '')
-    setMode(settings?.mode ?? 'fixed')
-    setRollover(settings?.rollover ?? false)
-    setHydrated(true)
-  }, [settings, loading, hydrated])
+    if (loading) return
+
+    // Hydrate once, then re-express the amount whenever the display currency
+    // changes — the field holds a figure in whatever currency is on screen.
+    const currencyChanged = shownIn.current !== display
+    if (hydrated && !currencyChanged) return
+    shownIn.current = display
+
+    setBudget(
+      settings && settings.monthly_budget > 0
+        ? String(Math.round(toDisplay(settings.monthly_budget) * 100) / 100)
+        : '',
+    )
+    if (!hydrated) {
+      setMode(settings?.mode ?? 'fixed')
+      setRollover(settings?.rollover ?? false)
+      setHydrated(true)
+    }
+  }, [settings, loading, hydrated, display])
 
   if (loading && !hydrated) return <Spinner />
 
@@ -56,7 +73,12 @@ export default function SettingsPage() {
     setError(null)
     setSaved(false)
     try {
-      await saveSettings({ monthly_budget: budget.trim() === '' ? 0 : value, mode, rollover })
+      // Typed in the display currency; stored in shekels like everything else.
+      await saveSettings({
+        monthly_budget: budget.trim() === '' ? 0 : Math.round(fromDisplay(value) * 100) / 100,
+        mode,
+        rollover,
+      })
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch (e) {
@@ -112,8 +134,8 @@ export default function SettingsPage() {
               onChange={(e) => setBudget(e.target.value)}
               aria-label={t.settings.budgetAria}
             />
-            <span className="pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-[18px] text-ink-faint">
-              ₪
+            <span className="num pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-[18px] text-ink-faint">
+              {display === 'USD' ? '$' : '₪'}
             </span>
           </div>
           <p className="mt-2 text-[13px] text-ink-soft dark:text-zinc-500">{t.settings.budgetHint}</p>
@@ -206,6 +228,30 @@ export default function SettingsPage() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="surface px-5 py-5">
+          <h2 className="mb-3 text-[15px] font-semibold">{t.settings.currency}</h2>
+          <div className="flex gap-2">
+            {(
+              [
+                ['ILS', '₪ שקל'],
+                ['USD', '$ Dollar'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setDisplay(value)}
+                className={`chip num flex-1 text-center ${display === value ? 'chip-on' : ''}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-soft dark:text-zinc-500">
+            {fellBack ? t.settings.currencyNoRate : t.settings.currencyNote}
+          </p>
         </section>
 
         <section className="surface px-5 py-5">

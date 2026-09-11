@@ -1,30 +1,64 @@
 /**
- * Set once by the language provider. The currency stays ILS in every language —
- * only the formatting conventions follow the locale.
+ * Every amount in the database is shekels. The locale governs formatting
+ * conventions, and the display currency governs what the reader sees — a USD
+ * view divides by the current rate at render time, so those figures move a
+ * little as the rate moves. Shekel figures never move.
  */
-let locale = 'he-IL'
-let currency = makeCurrency(locale, false)
-let currencyPrecise = makeCurrency(locale, true)
+export type DisplayCurrency = 'ILS' | 'USD'
 
-function makeCurrency(loc: string, precise: boolean) {
+let locale = 'he-IL'
+let display: DisplayCurrency = 'ILS'
+let ilsPerUsd = 1
+let currency = makeCurrency(locale, 'ILS', false)
+let currencyPrecise = makeCurrency(locale, 'ILS', true)
+
+function makeCurrency(loc: string, code: DisplayCurrency, precise: boolean) {
   return new Intl.NumberFormat(loc, {
     style: 'currency',
-    currency: 'ILS',
+    currency: code,
     minimumFractionDigits: 0,
     maximumFractionDigits: precise ? 2 : 0,
   })
 }
 
+function rebuild() {
+  currency = makeCurrency(locale, display, false)
+  currencyPrecise = makeCurrency(locale, display, true)
+}
+
 export function setLocale(next: string) {
   if (next === locale) return
   locale = next
-  currency = makeCurrency(locale, false)
-  currencyPrecise = makeCurrency(locale, true)
+  rebuild()
+}
+
+/** A USD display needs a rate; without one the caller must stay on ILS. */
+export function setDisplayCurrency(next: DisplayCurrency, rate: number | null) {
+  const usable = next === 'USD' && rate && rate > 0 ? next : 'ILS'
+  const nextRate = usable === 'USD' && rate ? rate : 1
+  if (usable === display && nextRate === ilsPerUsd) return
+  display = usable
+  ilsPerUsd = nextRate
+  rebuild()
+}
+
+export function displayCurrency(): DisplayCurrency {
+  return display
+}
+
+/** Converts a stored shekel amount into whatever is being displayed. */
+export function toDisplay(ils: number): number {
+  return display === 'USD' ? ils / ilsPerUsd : ils
+}
+
+/** The reverse, for inputs that are typed in the display currency. */
+export function fromDisplay(shown: number): number {
+  return display === 'USD' ? shown * ilsPerUsd : shown
 }
 
 export function formatMoney(value: number, precise = false): string {
   const fmt = precise ? currencyPrecise : currency
-  return fmt.format(value)
+  return fmt.format(toDisplay(value))
 }
 
 /** Money with an explicit sign, for profit/loss figures. */

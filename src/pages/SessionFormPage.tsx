@@ -10,6 +10,7 @@ import { ErrorNote, Spinner, moneyClass } from '../components/ui'
 import { ChipButton, SuitRule } from '../components/decor'
 import { cachedRate, fetchRate, formatRate, isStale, toIls, type Rate } from '../lib/fx'
 import { useI18n } from '../context/I18nContext'
+import { useCurrency } from '../context/CurrencyContext'
 
 type Slot = 'in' | 'out'
 
@@ -21,6 +22,7 @@ export default function SessionFormPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t } = useI18n()
+  const { display } = useCurrency()
   const { sessions, settings, locations, loading, addSession, updateSession } = useData()
 
   const editing = sessions.find((s) => s.id === id)
@@ -36,7 +38,7 @@ export default function SessionFormPage() {
   const [duration, setDuration] = useState('')
   const [notes, setNotes] = useState('')
   const [showMore, setShowMore] = useState(false)
-  const [currency, setCurrency] = useState<EntryCurrency>('ILS')
+  const [currency, setCurrency] = useState<EntryCurrency>(display)
   const [rate, setRate] = useState<Rate | null>(() => cachedRate())
   const [rateLoading, setRateLoading] = useState(false)
 
@@ -310,9 +312,9 @@ export default function SessionFormPage() {
         })}
       </div>
 
-      {currency === 'USD' && rateValue !== null && (typedBuyIn > 0 || typedCashOut > 0) && (
+      {currency !== display && rateValue !== null && (typedBuyIn > 0 || typedCashOut > 0) && (
         <div className="mt-3 flex items-center justify-between rounded-xl2 border border-line bg-card px-4 py-3 dark:border-night-line dark:bg-night-card">
-          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">{t.form.willSaveIls}</span>
+          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">{t.form.willShowAs}</span>
           <span className="num text-[15px] font-semibold">
             {formatMoney(buyInNum)} <span className="text-ink-faint">{t.form.inShort}</span> ·{' '}
             {formatMoney(cashOutNum)} <span className="text-ink-faint">{t.form.outShort}</span>
