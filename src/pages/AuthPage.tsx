@@ -53,18 +53,18 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-5 py-10">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-ink text-white shadow-card dark:bg-white dark:text-black">
+        <div className="mb-9 flex flex-col items-center text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-ink text-white dark:bg-white dark:text-night-bg">
             <SpadeIcon className="h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">מעקב פוקר</h1>
-          <p className="mt-2 text-sm text-ink-soft dark:text-zinc-400">
+          <h1 className="text-[32px] font-bold tracking-tight">מעקב פוקר</h1>
+          <p className="mt-2 text-[15px] text-ink-soft dark:text-zinc-400">
             רווחים, הפסדים ותקציב — במקום אחד.
           </p>
         </div>
 
-        <div className="card">
-          <div className="mb-5 flex rounded-xl bg-surface-muted p-1 dark:bg-zinc-800">
+        <div className="surface p-5">
+          <div className="mb-5 flex rounded-xl bg-line/60 p-1 dark:bg-night-line/60">
             {(['signin', 'signup'] as const).map((m) => (
               <button
                 key={m}
@@ -74,9 +74,9 @@ export default function AuthPage() {
                   setError(null)
                   setNotice(null)
                 }}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
+                className={`flex-1 rounded-lg py-2.5 text-[15px] font-medium transition ${
                   mode === m
-                    ? 'bg-white text-ink shadow-sm dark:bg-zinc-700 dark:text-white'
+                    ? 'bg-card text-ink shadow-soft dark:bg-night-card dark:text-white'
                     : 'text-ink-soft dark:text-zinc-400'
                 }`}
               >
@@ -87,7 +87,7 @@ export default function AuthPage() {
 
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <label className="field-label" htmlFor="email">
+              <label className="label mb-1.5 block" htmlFor="email">
                 אימייל
               </label>
               <input
@@ -104,7 +104,7 @@ export default function AuthPage() {
             </div>
 
             <div>
-              <label className="field-label" htmlFor="password">
+              <label className="label mb-1.5 block" htmlFor="password">
                 סיסמה
               </label>
               <input
@@ -122,18 +122,18 @@ export default function AuthPage() {
 
             {error && <ErrorNote>{error}</ErrorNote>}
             {notice && (
-              <p className="rounded-xl bg-emerald-50 px-3.5 py-3 text-sm text-profit dark:bg-emerald-950/40 dark:text-emerald-300">
+              <p className="rounded-xl bg-up-soft px-4 py-3 text-[15px] text-up dark:bg-up/10 dark:text-up-night">
                 {notice}
               </p>
             )}
 
-            <button type="submit" className="btn-primary" disabled={busy}>
+            <button type="submit" className="btn" disabled={busy}>
               {busy ? 'רגע…' : mode === 'signin' ? 'התחבר' : 'צור חשבון'}
             </button>
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs leading-relaxed text-zinc-400">
+        <p className="mt-6 text-center text-[13px] leading-relaxed text-ink-faint">
           הנתונים שלך פרטיים. כל משתמש רואה רק את הסשנים שלו.
         </p>
       </div>

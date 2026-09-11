@@ -20,14 +20,24 @@ export interface ChartPoint {
   value: number
 }
 
-const PROFIT = '#16a34a'
-const LOSS = '#dc2626'
+const PROFIT = '#0E9F6E'
+const LOSS = '#DC4B45'
+const PROFIT_DARK = '#34D399'
+const LOSS_DARK = '#F87171'
 
 function useAxisColors() {
   const { resolved } = useTheme()
-  return resolved === 'dark'
-    ? { axis: '#71717a', grid: '#27272a', tooltipBg: '#18181b', tooltipText: '#fafafa', border: '#3f3f46' }
-    : { axis: '#6e6e73', grid: '#f0f0f2', tooltipBg: '#ffffff', tooltipText: '#1d1d1f', border: '#e4e4e7' }
+  const dark = resolved === 'dark'
+  return {
+    dark,
+    axis: dark ? '#71717A' : '#A1A1AA',
+    grid: dark ? '#26262C' : '#ECECE8',
+    tooltipBg: dark ? '#151519' : '#FFFFFF',
+    tooltipText: dark ? '#FAFAFA' : '#14141A',
+    border: dark ? '#26262C' : '#ECECE8',
+    up: dark ? PROFIT_DARK : PROFIT,
+    down: dark ? LOSS_DARK : LOSS,
+  }
 }
 
 /** LRM-prefixed so a leading minus isn't reordered to the end inside RTL text. */
@@ -55,7 +65,7 @@ function Tip({ active, payload, title }: TipProps) {
       style={{ background: c.tooltipBg, color: c.tooltipText, border: `1px solid ${c.border}` }}
     >
       <p style={{ opacity: 0.6 }}>{formatShortDate(point.date)}</p>
-      <p className="mt-0.5 font-semibold" style={{ color: point.value >= 0 ? PROFIT : LOSS }}>
+      <p className="num mt-0.5 font-semibold" style={{ color: point.value >= 0 ? c.up : c.down }}>
         {title}: {formatSigned(point.value)}
       </p>
     </div>
@@ -65,7 +75,7 @@ function Tip({ active, payload, title }: TipProps) {
 export function CumulativeChart({ data }: { data: ChartPoint[] }) {
   const c = useAxisColors()
   const last = data.at(-1)?.value ?? 0
-  const stroke = last >= 0 ? PROFIT : LOSS
+  const stroke = last >= 0 ? c.up : c.down
 
   return (
     <ResponsiveContainer width="100%" height={220}>
@@ -136,7 +146,7 @@ export function PerSessionChart({ data }: { data: ChartPoint[] }) {
         />
         <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={36}>
           {data.map((d) => (
-            <Cell key={d.date + d.label} fill={d.value >= 0 ? PROFIT : LOSS} />
+            <Cell key={d.date + d.label} fill={d.value >= 0 ? c.up : c.down} />
           ))}
         </Bar>
       </BarChart>
@@ -146,7 +156,7 @@ export function PerSessionChart({ data }: { data: ChartPoint[] }) {
 
 export function ChartEmpty({ children }: { children: string }) {
   return (
-    <div className="flex h-[220px] items-center justify-center text-sm text-ink-soft dark:text-zinc-500">
+    <div className="flex h-[220px] items-center justify-center text-[15px] text-ink-soft dark:text-zinc-500">
       {children}
     </div>
   )

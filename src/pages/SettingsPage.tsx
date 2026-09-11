@@ -3,18 +3,16 @@ import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useTheme } from '../context/ThemeContext'
 import type { BudgetMode } from '../lib/types'
-import { ErrorNote, PageTitle, Spinner } from '../components/ui'
+import { ErrorNote, Spinner } from '../components/ui'
 
 const MODE_COPY: Record<BudgetMode, { label: string; blurb: string }> = {
   fixed: {
     label: 'תקציב קבוע',
-    blurb:
-      'סכום קבוע לכל חודש. כל כניסה למשחק מקטינה אותו, ורווחים לא מחזירים כלום. מתאים אם אתה רוצה תקרה קשיחה לכמה כסף נכנס לשולחן.',
+    blurb: 'כל כניסה למשחק מקטינה את התקציב. רווחים לא מחזירים כלום. תקרה קשיחה לכמה כסף נכנס לשולחן.',
   },
   replenish: {
     label: 'תקציב מתחדש',
-    blurb:
-      'רווחים חוזרים לתקציב ומשלימים את מה שבוזבז, כך שבפועל רק ההפסד הנקי מקטין אותו. התקציב הזמין אף פעם לא עולה מעל הסכום החודשי.',
+    blurb: 'רווחים חוזרים לתקציב, כך שבפועל רק ההפסד הנקי מקטין אותו. אף פעם לא עולה מעל הסכום החודשי.',
   },
 }
 
@@ -39,7 +37,7 @@ export default function SettingsPage() {
     setHydrated(true)
   }, [settings, loading, hydrated])
 
-  if (loading && !hydrated) return <Spinner label="טוען הגדרות…" />
+  if (loading && !hydrated) return <Spinner />
 
   async function onSave() {
     const value = Number(budget)
@@ -47,7 +45,6 @@ export default function SettingsPage() {
       setError('התקציב חייב להיות מספר חיובי')
       return
     }
-
     setBusy(true)
     setError(null)
     setSaved(false)
@@ -63,70 +60,69 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <PageTitle title="הגדרות" />
+      <h1 className="mb-4 pt-2 text-[26px] font-bold tracking-tight">הגדרות</h1>
 
       <div className="space-y-4">
-        <section className="card space-y-5">
-          <h2 className="text-base font-semibold">תקציב חודשי</h2>
+        <section className="surface px-5 py-5">
+          <h2 className="mb-3 text-[15px] font-semibold">תקציב חודשי</h2>
 
-          <div>
-            <label className="field-label" htmlFor="budget">סכום לחודש (₪)</label>
+          <div className="relative">
             <input
-              id="budget"
               type="number"
               inputMode="decimal"
               min="0"
               step="any"
-              className="field"
-              placeholder="למשל 1000"
+              className="field num pl-10 text-[24px] font-bold"
+              placeholder="0"
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
+              aria-label="סכום תקציב חודשי בשקלים"
             />
-            <p className="mt-1.5 text-xs text-ink-soft dark:text-zinc-500">
-              השאר ריק כדי לכבות את מעקב התקציב.
-            </p>
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[18px] text-ink-faint">
+              ₪
+            </span>
+          </div>
+          <p className="mt-2 text-[13px] text-ink-soft dark:text-zinc-500">
+            השאר ריק כדי לכבות את מעקב התקציב.
+          </p>
+
+          <div className="mt-5 space-y-2.5">
+            {(Object.keys(MODE_COPY) as BudgetMode[]).map((m) => {
+              const on = mode === m
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  className={`w-full rounded-xl2 border p-4 text-right transition ${
+                    on
+                      ? 'border-ink bg-line/40 dark:border-white dark:bg-night-line/50'
+                      : 'border-line dark:border-night-line'
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span
+                      className={`flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border-2 ${
+                        on ? 'border-ink dark:border-white' : 'border-ink-faint dark:border-zinc-600'
+                      }`}
+                    >
+                      {on && <span className="h-2.5 w-2.5 rounded-full bg-ink dark:bg-white" />}
+                    </span>
+                    <span className="text-[16px] font-semibold">{MODE_COPY[m].label}</span>
+                  </span>
+                  <span className="mt-2 block pr-[29px] text-[14px] leading-relaxed text-ink-soft dark:text-zinc-400">
+                    {MODE_COPY[m].blurb}
+                  </span>
+                </button>
+              )
+            })}
           </div>
 
-          <div>
-            <span className="field-label">מצב חישוב</span>
-            <div className="space-y-2.5">
-              {(Object.keys(MODE_COPY) as BudgetMode[]).map((m) => {
-                const active = mode === m
-                return (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setMode(m)}
-                    className={`w-full rounded-xl border p-4 text-right transition ${
-                      active
-                        ? 'border-ink bg-surface-muted dark:border-white dark:bg-zinc-800'
-                        : 'border-zinc-200 dark:border-zinc-700'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                          active ? 'border-ink dark:border-white' : 'border-zinc-300 dark:border-zinc-600'
-                        }`}
-                      >
-                        {active && <span className="h-2.5 w-2.5 rounded-full bg-ink dark:bg-white" />}
-                      </span>
-                      <span className="font-medium">{MODE_COPY[m].label}</span>
-                    </div>
-                    <p className="mt-2 pr-[30px] text-sm leading-relaxed text-ink-soft dark:text-zinc-400">
-                      {MODE_COPY[m].blurb}
-                    </p>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <label className="flex cursor-pointer items-center justify-between gap-4">
+          <label className="mt-5 flex cursor-pointer items-center justify-between gap-4">
             <span>
-              <span className="block font-medium">העברת יתרה לחודש הבא</span>
-              <span className="mt-1 block text-sm leading-relaxed text-ink-soft dark:text-zinc-400">
-                יתרה חיובית שלא נוצלה מתווספת לתקציב של החודש הבא.
+              <span className="block text-[16px] font-medium">יתרה עוברת לחודש הבא</span>
+              <span className="mt-0.5 block text-[14px] leading-relaxed text-ink-soft dark:text-zinc-400">
+                מה שלא ניצלת מתווסף לתקציב הבא.
               </span>
             </span>
             <span className="relative shrink-0">
@@ -136,21 +132,21 @@ export default function SettingsPage() {
                 checked={rollover}
                 onChange={(e) => setRollover(e.target.checked)}
               />
-              <span className="block h-7 w-12 rounded-full bg-zinc-200 transition peer-checked:bg-profit dark:bg-zinc-700" />
-              <span className="pointer-events-none absolute right-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform peer-checked:-translate-x-5" />
+              <span className="block h-[31px] w-[51px] rounded-full bg-line transition peer-checked:bg-up dark:bg-night-line" />
+              <span className="pointer-events-none absolute right-[2px] top-[2px] h-[27px] w-[27px] rounded-full bg-white shadow transition-transform peer-checked:-translate-x-5" />
             </span>
           </label>
 
-          {error && <ErrorNote>{error}</ErrorNote>}
+          {error && <div className="mt-4"><ErrorNote>{error}</ErrorNote></div>}
 
-          <button onClick={() => void onSave()} className="btn-primary" disabled={busy}>
-            {busy ? 'שומר…' : saved ? 'נשמר ✓' : 'שמור הגדרות'}
+          <button onClick={() => void onSave()} className="btn mt-5" disabled={busy}>
+            {busy ? 'שומר…' : saved ? 'נשמר ✓' : 'שמור'}
           </button>
         </section>
 
-        <section className="card space-y-4">
-          <h2 className="text-base font-semibold">מראה</h2>
-          <div className="flex rounded-xl bg-surface-muted p-1 dark:bg-zinc-800">
+        <section className="surface px-5 py-5">
+          <h2 className="mb-3 text-[15px] font-semibold">מראה</h2>
+          <div className="flex gap-2">
             {(
               [
                 ['light', 'בהיר'],
@@ -162,11 +158,7 @@ export default function SettingsPage() {
                 key={value}
                 type="button"
                 onClick={() => setTheme(value)}
-                className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
-                  theme === value
-                    ? 'bg-white text-ink shadow-sm dark:bg-zinc-700 dark:text-white'
-                    : 'text-ink-soft dark:text-zinc-400'
-                }`}
+                className={`chip flex-1 text-center ${theme === value ? 'chip-on' : ''}`}
               >
                 {label}
               </button>
@@ -174,14 +166,14 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="card space-y-4">
-          <h2 className="text-base font-semibold">חשבון</h2>
-          <p className="text-sm text-ink-soft dark:text-zinc-400" dir="ltr" style={{ textAlign: 'right' }}>
+        <section className="surface px-5 py-5">
+          <h2 className="text-[15px] font-semibold">חשבון</h2>
+          <p className="mt-2 text-[15px] text-ink-soft dark:text-zinc-400" dir="ltr" style={{ textAlign: 'right' }}>
             {user?.email}
           </p>
           <button
             onClick={() => void signOut()}
-            className="w-full rounded-xl border border-zinc-200 px-4 py-3 text-base font-medium text-loss transition dark:border-zinc-700"
+            className="mt-4 w-full rounded-xl2 border border-line py-3.5 text-[16px] font-medium text-down transition active:scale-[0.985] dark:border-night-line dark:text-down-night"
           >
             התנתקות
           </button>

@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useData } from '../context/DataContext'
-import { formatDate, formatDuration, formatMoney, formatSigned } from '../lib/format'
-import type { GameType } from '../lib/types'
+import { formatDuration, formatMoney, formatSigned, monthKey, formatMonth, relativeDate } from '../lib/format'
+import type { GameType, PokerSession } from '../lib/types'
 import { PencilIcon, TrashIcon } from '../components/icons'
-import { EmptyState, ErrorNote, PageTitle, Spinner, profitClass } from '../components/ui'
+import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 
 const GAME_LABEL: Record<GameType, string> = { cash: 'קאש', tournament: 'טורניר' }
 
@@ -12,7 +12,8 @@ export default function SessionsPage() {
   const { sessions, loading, error, locations, deleteSession } = useData()
   const navigate = useNavigate()
   const [gameFilter, setGameFilter] = useState<GameType | 'all'>('all')
-  const [locationFilter, setLocationFilter] = useState('all')
+  const [locationFilter, setLocationFilter] = useState<string>('all')
+  const [openId, setOpenId] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
@@ -26,22 +27,31 @@ export default function SessionsPage() {
     [sessions, gameFilter, locationFilter],
   )
 
-  if (loading) return <Spinner label="טוען סשנים…" />
+  // Grouped by month so a long history stays scannable.
+  const months = useMemo(() => {
+    const buckets = new Map<string, PokerSession[]>()
+    for (const s of filtered) {
+      const key = monthKey(s.date)
+      const list = buckets.get(key) ?? []
+      list.push(s)
+      buckets.set(key, list)
+    }
+    return [...buckets.entries()]
+  }, [filtered])
+
+  if (loading) return <Spinner />
 
   if (sessions.length === 0) {
     return (
-      <div>
-        <PageTitle title="סשנים" />
-        <EmptyState
-          title="אין עדיין סשנים"
-          body="ברגע שתוסיף סשן ראשון הוא יופיע כאן, עם הרווח או ההפסד שלו."
-          action={
-            <Link to="/add" className="btn-primary block text-center">
-              הוסף סשן ראשון
-            </Link>
-          }
-        />
-      </div>
+      <EmptyState
+        title="אין עדיין סשנים"
+        body="ברגע שתרשום סשן ראשון הוא יופיע כאן."
+        action={
+          <Link to="/add" className="btn block text-center">
+            רשום סשן ראשון
+          </Link>
+        }
+      />
     )
   }
 
@@ -50,127 +60,163 @@ export default function SessionsPage() {
     try {
       await deleteSession(id)
       setPendingDelete(null)
+      setOpenId(null)
     } catch (e) {
       setDeleteError(e instanceof Error ? e.message : 'המחיקה נכשלה')
     }
   }
 
+  const hasFilter = gameFilter !== 'all' || locationFilter !== 'all'
+
   return (
     <div>
-      <PageTitle title="סשנים" subtitle={`${filtered.length} מתוך ${sessions.length}`} />
+      <h1 className="mb-4 pt-2 text-[26px] font-bold tracking-tight">סשנים</h1>
 
-      <div className="mb-4 grid grid-cols-2 gap-3">
-        <select
-          className="field appearance-none"
-          value={gameFilter}
-          onChange={(e) => setGameFilter(e.target.value as GameType | 'all')}
-          aria-label="סינון לפי סוג משחק"
+      <div className="rail mb-4">
+        <button
+          onClick={() => {
+            setGameFilter('all')
+            setLocationFilter('all')
+          }}
+          className={`chip ${hasFilter ? '' : 'chip-on'}`}
         >
-          <option value="all">כל סוגי המשחק</option>
-          <option value="cash">קאש</option>
-          <option value="tournament">טורניר</option>
-        </select>
-
-        <select
-          className="field appearance-none"
-          value={locationFilter}
-          onChange={(e) => setLocationFilter(e.target.value)}
-          aria-label="סינון לפי מיקום"
-        >
-          <option value="all">כל המיקומים</option>
-          {locations.map((l) => (
-            <option key={l} value={l}>
-              {l}
-            </option>
-          ))}
-        </select>
+          הכול
+        </button>
+        {(['cash', 'tournament'] as const).map((g) => (
+          <button
+            key={g}
+            onClick={() => setGameFilter(gameFilter === g ? 'all' : g)}
+            className={`chip ${gameFilter === g ? 'chip-on' : ''}`}
+          >
+            {GAME_LABEL[g]}
+          </button>
+        ))}
+        {locations.map((l) => (
+          <button
+            key={l}
+            onClick={() => setLocationFilter(locationFilter === l ? 'all' : l)}
+            className={`chip ${locationFilter === l ? 'chip-on' : ''}`}
+          >
+            {l}
+          </button>
+        ))}
       </div>
 
       {error && <ErrorNote>{error}</ErrorNote>}
       {deleteError && <ErrorNote>{deleteError}</ErrorNote>}
 
       {filtered.length === 0 ? (
-        <div className="card py-10 text-center text-sm text-ink-soft dark:text-zinc-400">
+        <p className="surface px-5 py-10 text-center text-[15px] text-ink-soft dark:text-zinc-400">
           אין סשנים שמתאימים לסינון.
-        </div>
+        </p>
       ) : (
-        <ul className="space-y-3">
-          {filtered.map((s) => (
-            <li key={s.id} className="card p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="font-semibold">{formatDate(s.date)}</span>
-                    <span className="rounded-md bg-surface-muted px-2 py-0.5 text-[11px] font-medium text-ink-soft dark:bg-zinc-800 dark:text-zinc-400">
-                      {GAME_LABEL[s.game_type]}
-                    </span>
-                  </div>
-                  <p className="mt-1 truncate text-sm text-ink-soft dark:text-zinc-400">
-                    {s.location || 'ללא מיקום'}
-                    {s.duration_minutes ? ` · ${formatDuration(s.duration_minutes)}` : ''}
-                  </p>
-                </div>
-                <span className={`shrink-0 text-lg font-bold tabular-nums ${profitClass(s.profit)}`}>
-                  {formatSigned(s.profit)}
-                </span>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3 text-sm dark:border-zinc-800">
-                <div className="flex gap-4 text-ink-soft dark:text-zinc-400">
-                  <span>
-                    כניסות <span className="font-medium tabular-nums text-ink dark:text-zinc-200">{formatMoney(s.total_in)}</span>
-                    {s.rebuys > 0 && <span className="text-xs"> ({s.rebuys + 1}×)</span>}
-                  </span>
-                  <span>
-                    יציאה <span className="font-medium tabular-nums text-ink dark:text-zinc-200">{formatMoney(s.cash_out)}</span>
+        <div className="space-y-5">
+          {months.map(([key, list]) => {
+            const monthProfit = list.reduce((sum, s) => sum + s.profit, 0)
+            return (
+              <section key={key}>
+                <div className="mb-2 flex items-baseline justify-between px-1">
+                  <h2 className="text-[14px] font-semibold text-ink-soft dark:text-zinc-400">
+                    {formatMonth(key)}
+                  </h2>
+                  <span className={`num text-[14px] font-semibold ${moneyClass(monthProfit)}`}>
+                    {formatSigned(monthProfit)}
                   </span>
                 </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => navigate(`/sessions/${s.id}/edit`)}
-                    className="rounded-lg p-2 text-ink-soft transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-                    aria-label="ערוך סשן"
-                  >
-                    <PencilIcon />
-                  </button>
-                  <button
-                    onClick={() => setPendingDelete(s.id)}
-                    className="rounded-lg p-2 text-ink-soft transition hover:bg-red-50 hover:text-loss dark:text-zinc-400 dark:hover:bg-red-950/40"
-                    aria-label="מחק סשן"
-                  >
-                    <TrashIcon />
-                  </button>
-                </div>
-              </div>
 
-              {s.notes && (
-                <p className="mt-3 rounded-lg bg-surface-muted px-3 py-2 text-sm leading-relaxed text-ink-soft dark:bg-zinc-800 dark:text-zinc-400">
-                  {s.notes}
-                </p>
-              )}
+                <div className="surface divide-y divide-line overflow-hidden dark:divide-night-line">
+                  {list.map((s) => {
+                    const open = openId === s.id
+                    return (
+                      <div key={s.id}>
+                        <button
+                          onClick={() => {
+                            setOpenId(open ? null : s.id)
+                            setPendingDelete(null)
+                          }}
+                          className="row-press flex w-full items-center justify-between gap-3 px-5 py-3.5 text-right"
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate text-[16px] font-medium">
+                              {s.location || GAME_LABEL[s.game_type]}
+                            </span>
+                            <span className="mt-0.5 block text-[13px] text-ink-soft dark:text-zinc-500">
+                              {relativeDate(s.date)}
+                              {s.rebuys > 0 ? ` · ${s.rebuys + 1} כניסות` : ''}
+                            </span>
+                          </span>
+                          <span className={`num shrink-0 text-[18px] font-bold ${moneyClass(s.profit)}`}>
+                            {formatSigned(s.profit)}
+                          </span>
+                        </button>
 
-              {pendingDelete === s.id && (
-                <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/60 dark:bg-red-950/30">
-                  <p className="text-sm text-red-900 dark:text-red-200">למחוק את הסשן הזה?</p>
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      onClick={() => void confirmDelete(s.id)}
-                      className="flex-1 rounded-lg bg-loss px-3 py-2 text-sm font-medium text-white"
-                    >
-                      מחק
-                    </button>
-                    <button
-                      onClick={() => setPendingDelete(null)}
-                      className="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-900 dark:border-red-900 dark:text-red-200"
-                    >
-                      ביטול
-                    </button>
-                  </div>
+                        {open && (
+                          <div className="border-t hairline bg-paper/60 px-5 py-4 dark:bg-night-bg/40">
+                            <dl className="space-y-2 text-[14px]">
+                              {(
+                                [
+                                  ['סוג', GAME_LABEL[s.game_type]],
+                                  ['סך כניסות', formatMoney(s.total_in)],
+                                  ['יציאה', formatMoney(s.cash_out)],
+                                  ['משך', formatDuration(s.duration_minutes)],
+                                ] as const
+                              ).map(([k, v]) => (
+                                <div key={k} className="flex justify-between">
+                                  <dt className="text-ink-soft dark:text-zinc-500">{k}</dt>
+                                  <dd className="num font-medium">{v}</dd>
+                                </div>
+                              ))}
+                            </dl>
+
+                            {s.notes && (
+                              <p className="mt-3 rounded-xl bg-card px-3.5 py-2.5 text-[14px] leading-relaxed text-ink-soft dark:bg-night-card dark:text-zinc-400">
+                                {s.notes}
+                              </p>
+                            )}
+
+                            {pendingDelete === s.id ? (
+                              <div className="mt-4 flex gap-2">
+                                <button
+                                  onClick={() => void confirmDelete(s.id)}
+                                  className="flex-1 rounded-xl bg-down py-2.5 text-[15px] font-semibold text-white"
+                                >
+                                  כן, מחק
+                                </button>
+                                <button
+                                  onClick={() => setPendingDelete(null)}
+                                  className="flex-1 rounded-xl border border-line py-2.5 text-[15px] font-medium text-ink-soft dark:border-night-line dark:text-zinc-300"
+                                >
+                                  ביטול
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="mt-4 flex gap-2">
+                                <button
+                                  onClick={() => navigate(`/sessions/${s.id}/edit`)}
+                                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-[15px] font-medium dark:border-night-line"
+                                >
+                                  <PencilIcon />
+                                  ערוך
+                                </button>
+                                <button
+                                  onClick={() => setPendingDelete(s.id)}
+                                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-[15px] font-medium text-down dark:border-night-line dark:text-down-night"
+                                >
+                                  <TrashIcon />
+                                  מחק
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
-              )}
-            </li>
-          ))}
-        </ul>
+              </section>
+            )
+          })}
+        </div>
       )}
     </div>
   )

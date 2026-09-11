@@ -39,6 +39,22 @@ export function formatShortDate(iso: string): string {
   )
 }
 
+/** ISO date shifted by whole days, staying in local time. */
+export function shiftDays(iso: string, delta: number): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  const shifted = new Date(y, m - 1, d + delta)
+  const tz = shifted.getTimezoneOffset() * 60_000
+  return new Date(shifted.getTime() - tz).toISOString().slice(0, 10)
+}
+
+/** "היום" / "אתמול" where it reads better than a date. */
+export function relativeDate(iso: string): string {
+  const today = todayIso()
+  if (iso === today) return 'היום'
+  if (iso === shiftDays(today, -1)) return 'אתמול'
+  return formatDate(iso)
+}
+
 export function formatDuration(minutes: number | null): string {
   if (minutes === null || minutes === 0) return '—'
   const h = Math.floor(minutes / 60)

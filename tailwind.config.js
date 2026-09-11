@@ -8,23 +8,36 @@ export default {
         sans: ['Heebo', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
       colors: {
-        surface: {
-          DEFAULT: '#ffffff',
-          muted: '#f5f5f7',
-        },
+        // Surfaces run warm so the app reads like paper, not a default UI kit.
+        paper: '#FBFBF9',
+        card: '#FFFFFF',
         ink: {
-          DEFAULT: '#1d1d1f',
-          soft: '#6e6e73',
+          DEFAULT: '#14141A',
+          soft: '#71717A',
+          faint: '#A1A1AA',
         },
-        profit: '#16a34a',
-        loss: '#dc2626',
-        warn: '#f59e0b',
+        line: '#ECECE8',
+        night: {
+          bg: '#0B0B0D',
+          card: '#151519',
+          line: '#26262C',
+        },
+        // One accent, used only where money is at stake.
+        up: { DEFAULT: '#0E9F6E', soft: '#E7F6F0', night: '#34D399' },
+        down: { DEFAULT: '#DC4B45', soft: '#FCEDEC', night: '#F87171' },
+        flag: { DEFAULT: '#D98A2B', soft: '#FDF3E6', night: '#FBBF24' },
       },
-      boxShadow: {
-        card: '0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05)',
+      fontSize: {
+        hero: ['3.25rem', { lineHeight: '1', letterSpacing: '-0.035em', fontWeight: '700' }],
+        big: ['2rem', { lineHeight: '1.05', letterSpacing: '-0.025em', fontWeight: '700' }],
       },
       borderRadius: {
-        xl2: '1.25rem',
+        xl2: '1.125rem',
+        xl3: '1.5rem',
+      },
+      boxShadow: {
+        soft: '0 1px 2px rgba(20,20,26,0.04), 0 6px 20px -8px rgba(20,20,26,0.10)',
+        lift: '0 2px 4px rgba(20,20,26,0.06), 0 16px 32px -12px rgba(20,20,26,0.18)',
       },
     },
   },
