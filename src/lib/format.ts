@@ -1,15 +1,26 @@
-const currency = new Intl.NumberFormat('he-IL', {
-  style: 'currency',
-  currency: 'ILS',
-  maximumFractionDigits: 0,
-})
+/**
+ * Set once by the language provider. The currency stays ILS in every language —
+ * only the formatting conventions follow the locale.
+ */
+let locale = 'he-IL'
+let currency = makeCurrency(locale, false)
+let currencyPrecise = makeCurrency(locale, true)
 
-const currencyPrecise = new Intl.NumberFormat('he-IL', {
-  style: 'currency',
-  currency: 'ILS',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-})
+function makeCurrency(loc: string, precise: boolean) {
+  return new Intl.NumberFormat(loc, {
+    style: 'currency',
+    currency: 'ILS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: precise ? 2 : 0,
+  })
+}
+
+export function setLocale(next: string) {
+  if (next === locale) return
+  locale = next
+  currency = makeCurrency(locale, false)
+  currencyPrecise = makeCurrency(locale, true)
+}
 
 export function formatMoney(value: number, precise = false): string {
   const fmt = precise ? currencyPrecise : currency
@@ -25,7 +36,7 @@ export function formatSigned(value: number): string {
 
 export function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number)
-  return new Intl.DateTimeFormat('he-IL', {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -34,7 +45,7 @@ export function formatDate(iso: string): string {
 
 export function formatShortDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number)
-  return new Intl.DateTimeFormat('he-IL', { day: 'numeric', month: 'numeric' }).format(
+  return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'numeric' }).format(
     new Date(y, m - 1, d),
   )
 }
@@ -47,21 +58,27 @@ export function shiftDays(iso: string, delta: number): string {
   return new Date(shifted.getTime() - tz).toISOString().slice(0, 10)
 }
 
-/** "היום" / "אתמול" where it reads better than a date. */
-export function relativeDate(iso: string): string {
+/** "Today" / "Yesterday" where either reads better than a date. */
+export function relativeDate(iso: string, labels: { today: string; yesterday: string }): string {
   const today = todayIso()
-  if (iso === today) return 'היום'
-  if (iso === shiftDays(today, -1)) return 'אתמול'
+  if (iso === today) return labels.today
+  if (iso === shiftDays(today, -1)) return labels.yesterday
   return formatDate(iso)
 }
 
-export function formatDuration(minutes: number | null): string {
-  if (minutes === null || minutes === 0) return '—'
+interface DurationUnits {
+  minutes: string
+  hours: string
+  none: string
+}
+
+export function formatDuration(minutes: number | null, u: DurationUnits): string {
+  if (minutes === null || minutes === 0) return u.none
   const h = Math.floor(minutes / 60)
   const m = minutes % 60
-  if (h === 0) return `${m} דק׳`
-  if (m === 0) return `${h} ש׳`
-  return `${h}:${String(m).padStart(2, '0')} ש׳`
+  if (h === 0) return `${m} ${u.minutes}`
+  if (m === 0) return `${h} ${u.hours}`
+  return `${h}:${String(m).padStart(2, '0')} ${u.hours}`
 }
 
 export function todayIso(): string {
@@ -81,7 +98,7 @@ export function currentMonthKey(): string {
 
 export function formatMonth(key: string): string {
   const [y, m] = key.split('-').map(Number)
-  return new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(
+  return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(
     new Date(y, m - 1, 1),
   )
 }

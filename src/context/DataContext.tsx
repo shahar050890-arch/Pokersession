@@ -14,6 +14,8 @@ interface DataValue {
   updateSession: (id: string, input: SessionInput) => Promise<void>
   deleteSession: (id: string) => Promise<void>
   saveSettings: (patch: Partial<Omit<BudgetSettings, 'user_id' | 'updated_at'>>) => Promise<void>
+  /** Deletes every session and clears the budget. The account is untouched. */
+  resetAllData: () => Promise<void>
   refresh: () => Promise<void>
 }
 
@@ -125,6 +127,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [user, settings, load],
   )
 
+  const resetAllData = useCallback(async () => {
+    if (!user) throw new Error('not signed in')
+
+    // RLS already scopes these to the current user; the explicit filter makes
+    // that guarantee visible at the call site rather than implied.
+    const { error: sessionsError } = await supabase
+      .from('poker_sessions')
+      .delete()
+      .eq('user_id', user.id)
+    if (sessionsError) throw new Error(sessionsError.message)
+
+    const { error: settingsError } = await supabase
+      .from('budget_settings')
+      .delete()
+      .eq('user_id', user.id)
+    if (settingsError) throw new Error(settingsError.message)
+
+    await load()
+  }, [user, load])
+
   const locations = useMemo(() => {
     const seen = new Set<string>()
     for (const s of sessions) {
@@ -145,9 +167,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
       updateSession,
       deleteSession,
       saveSettings,
+      resetAllData,
       refresh: load,
     }),
-    [sessions, settings, loading, error, locations, addSession, updateSession, deleteSession, saveSettings, load],
+    [
+      sessions,
+      settings,
+      loading,
+      error,
+      locations,
+      addSession,
+      updateSession,
+      deleteSession,
+      saveSettings,
+      resetAllData,
+      load,
+    ],
   )
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>

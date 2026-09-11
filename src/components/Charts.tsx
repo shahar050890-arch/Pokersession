@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { useTheme } from '../context/ThemeContext'
+import { useI18n } from '../context/I18nContext'
 import { formatMoney, formatShortDate, formatSigned } from '../lib/format'
 
 export interface ChartPoint {
@@ -74,6 +75,9 @@ function Tip({ active, payload, title }: TipProps) {
 
 export function CumulativeChart({ data }: { data: ChartPoint[] }) {
   const c = useAxisColors()
+  const { t, dir } = useI18n()
+  // The value axis belongs on the side the eye finishes a row on.
+  const axisSide = dir === 'rtl' ? 'right' : 'left'
   const last = data.at(-1)?.value ?? 0
   const stroke = last >= 0 ? c.up : c.down
 
@@ -88,10 +92,10 @@ export function CumulativeChart({ data }: { data: ChartPoint[] }) {
           tickLine={false}
           minTickGap={24}
           tickMargin={10}
-          padding={{ right: 12 }}
+          padding={dir === 'rtl' ? { right: 12 } : { left: 12 }}
         />
         <YAxis
-          orientation="right"
+          orientation={axisSide}
           tick={{ fill: c.axis, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
@@ -100,7 +104,7 @@ export function CumulativeChart({ data }: { data: ChartPoint[] }) {
           tickFormatter={compact}
         />
         <ReferenceLine y={0} stroke={c.axis} strokeWidth={1.5} />
-        <Tooltip content={<Tip title="מצטבר" />} cursor={{ stroke: c.axis, strokeDasharray: '3 3' }} />
+        <Tooltip content={<Tip title={t.chart.cumulative} />} cursor={{ stroke: c.axis, strokeDasharray: '3 3' }} />
         <Line
           type="monotone"
           dataKey="value"
@@ -116,6 +120,8 @@ export function CumulativeChart({ data }: { data: ChartPoint[] }) {
 
 export function PerSessionChart({ data }: { data: ChartPoint[] }) {
   const c = useAxisColors()
+  const { t, dir } = useI18n()
+  const axisSide = dir === 'rtl' ? 'right' : 'left'
 
   return (
     <ResponsiveContainer width="100%" height={220}>
@@ -128,10 +134,10 @@ export function PerSessionChart({ data }: { data: ChartPoint[] }) {
           tickLine={false}
           minTickGap={24}
           tickMargin={10}
-          padding={{ right: 12 }}
+          padding={dir === 'rtl' ? { right: 12 } : { left: 12 }}
         />
         <YAxis
-          orientation="right"
+          orientation={axisSide}
           tick={{ fill: c.axis, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
@@ -141,7 +147,7 @@ export function PerSessionChart({ data }: { data: ChartPoint[] }) {
         />
         <ReferenceLine y={0} stroke={c.axis} strokeWidth={1.5} />
         <Tooltip
-          content={<Tip title="סשן" />}
+          content={<Tip title={t.chart.session} />}
           cursor={{ fill: c.grid }}
         />
         <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={36}>

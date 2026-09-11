@@ -1,14 +1,17 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { ChartIcon, GearIcon, ListIcon, PlusIcon } from './icons'
-
-const TABS = [
-  { to: '/', label: 'סיכום', Icon: ChartIcon, end: true },
-  { to: '/sessions', label: 'סשנים', Icon: ListIcon, end: false },
-  { to: '/settings', label: 'הגדרות', Icon: GearIcon, end: false },
-]
+import { useI18n } from '../context/I18nContext'
 
 export default function Layout() {
   const { pathname } = useLocation()
+  const { t } = useI18n()
+
+  const TABS = [
+    { to: '/', label: t.nav.summary, Icon: ChartIcon, end: true },
+    { to: '/sessions', label: t.nav.sessions, Icon: ListIcon, end: false },
+    { to: '/settings', label: t.nav.settings, Icon: GearIcon, end: false },
+  ]
+
   // The keypad screen owns the whole viewport; the floating action would only
   // sit on top of it.
   const onEntry = pathname === '/add' || pathname.endsWith('/edit')
@@ -23,12 +26,12 @@ export default function Layout() {
         <NavLink
           to="/add"
           className="fixed bottom-24 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full
-                     bg-ink py-3.5 pl-6 pr-5 text-[16px] font-semibold text-white shadow-lift
+                     bg-ink py-3.5 pe-5 ps-6 text-[16px] font-semibold text-white shadow-lift
                      transition active:scale-95 dark:bg-white dark:text-night-bg"
           style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}
         >
           <PlusIcon className="h-5 w-5" />
-          סשן חדש
+          {t.nav.add}
         </NavLink>
       )}
 

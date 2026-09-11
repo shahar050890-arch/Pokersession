@@ -9,15 +9,9 @@ import StatRow from '../components/StatRow'
 import { ChartEmpty, CumulativeChart, PerSessionChart, type ChartPoint } from '../components/Charts'
 import { CardFan, ChipStack, Felt, SuitRule } from '../components/decor'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
+import { useI18n } from '../context/I18nContext'
 
 type Range = 'month' | 'quarter' | 'year' | 'all'
-
-const RANGES: Array<[Range, string]> = [
-  ['month', 'החודש'],
-  ['quarter', '3 חודשים'],
-  ['year', 'השנה'],
-  ['all', 'הכול'],
-]
 
 /** Inclusive lower bound (ISO date) for a range, or null for "all time". */
 function rangeStart(range: Range): string | null {
@@ -34,7 +28,14 @@ function rangeStart(range: Range): string | null {
 }
 
 export default function Dashboard() {
+  const { t } = useI18n()
   const { sessions, settings, loading, error } = useData()
+  const RANGES: Array<[Range, string]> = [
+    ['month', t.dash.rangeMonth],
+    ['quarter', t.dash.rangeQuarter],
+    ['year', t.dash.rangeYear],
+    ['all', t.dash.rangeAll],
+  ]
   const navigate = useNavigate()
   const [range, setRange] = useState<Range>('all')
 
@@ -88,20 +89,20 @@ export default function Dashboard() {
       <div>
         <EmptyState
           art={<CardFan className="h-24 w-32" />}
-          title="בוא נתחיל"
-          body="רשום כל סשן — כמה נכנסת, כמה יצאת. עם הזמן תראה את המגמה שלך, ותוכל להגדיר תקציב חודשי שישמור עליך."
+          title={t.dash.emptyTitle}
+          body={t.dash.emptyBody}
           action={
             <Link to="/add" className="btn block text-center">
-              רשום סשן ראשון
+              {t.dash.emptyCta}
             </Link>
           }
         />
         <p className="mt-2 text-center text-[14px] text-ink-soft dark:text-zinc-500">
-          או{' '}
+          {t.dash.emptyOr}{' '}
           <Link to="/settings" className="font-medium text-ink underline underline-offset-4 dark:text-zinc-200">
-            הגדר תקציב חודשי
+            {t.dash.emptySettings}
           </Link>{' '}
-          קודם.
+          {t.dash.emptyFirst}
         </p>
       </div>
     )
@@ -113,9 +114,9 @@ export default function Dashboard() {
       <Felt className="rounded-xl3 px-6 py-7 shadow-lift">
         {/* Decoration, not a column — laid out over the felt so it can never
             squeeze the figures into a second line. */}
-        <ChipStack className="pointer-events-none absolute -bottom-3 -left-3 h-[104px] w-[92px]" />
-        <div className="relative pl-[72px]">
-          <p className="text-[13px] font-medium text-white/60">רווח כולל</p>
+        <ChipStack className="pointer-events-none absolute -bottom-3 -start-3 h-[104px] w-[92px]" />
+        <div className="relative ps-[72px]">
+          <p className="text-[13px] font-medium text-white/60">{t.dash.totalProfit}</p>
           <p
             className="num mt-1 text-hero"
             style={{ color: stats.totalProfit < 0 ? '#FCA5A5' : '#FFFFFF' }}
@@ -123,7 +124,7 @@ export default function Dashboard() {
             {formatSigned(stats.totalProfit)}
           </p>
           <p className="mt-2 text-[15px] text-white/70">
-            {stats.count} סשנים · {formatMoney(stats.totalIn)} כניסות
+            {t.dash.summaryLine(stats.count, formatMoney(stats.totalIn))}
           </p>
         </div>
       </Felt>
@@ -134,9 +135,9 @@ export default function Dashboard() {
 
       <StatRow
         stats={[
-          { label: 'החודש', value: formatSigned(stats.monthProfit), tone: moneyClass(stats.monthProfit) },
-          { label: 'ממוצע לסשן', value: formatSigned(stats.average), tone: moneyClass(stats.average) },
-          { label: 'סשנים רווחיים', value: `${stats.winRate}%` },
+          { label: t.dash.thisMonth, value: formatSigned(stats.monthProfit), tone: moneyClass(stats.monthProfit) },
+          { label: t.dash.avgPerSession, value: formatSigned(stats.average), tone: moneyClass(stats.average) },
+          { label: t.dash.winRate, value: `${stats.winRate}%` },
         ]}
       />
 
@@ -156,19 +157,19 @@ export default function Dashboard() {
 
       <section className="surface px-4 py-4">
         <div className="mb-2 flex items-baseline justify-between px-1">
-          <h2 className="text-[15px] font-semibold">מצטבר</h2>
+          <h2 className="text-[15px] font-semibold">{t.dash.cumulative}</h2>
           {cumulative.length > 0 && (
             <span className={`num text-[15px] font-semibold ${moneyClass(cumulative[cumulative.length - 1].value)}`}>
               {formatSigned(cumulative[cumulative.length - 1].value)}
             </span>
           )}
         </div>
-        {cumulative.length > 0 ? <CumulativeChart data={cumulative} /> : <ChartEmpty>אין סשנים בטווח הזה</ChartEmpty>}
+        {cumulative.length > 0 ? <CumulativeChart data={cumulative} /> : <ChartEmpty>{t.dash.noneInRange}</ChartEmpty>}
       </section>
 
       <section className="surface px-4 py-4">
-        <h2 className="mb-2 px-1 text-[15px] font-semibold">לפי סשן</h2>
-        {perSession.length > 0 ? <PerSessionChart data={perSession} /> : <ChartEmpty>אין סשנים בטווח הזה</ChartEmpty>}
+        <h2 className="mb-2 px-1 text-[15px] font-semibold">{t.dash.perSession}</h2>
+        {perSession.length > 0 ? <PerSessionChart data={perSession} /> : <ChartEmpty>{t.dash.noneInRange}</ChartEmpty>}
       </section>
     </div>
   )

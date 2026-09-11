@@ -70,6 +70,7 @@ interface ChipProps {
   ratio: number
   color: string
   size?: number
+  caption?: string
 }
 
 /**
@@ -77,7 +78,7 @@ interface ChipProps {
  * meter and the motif in one object. The eight rim inlays and the double inner
  * ring are what make it read as a chip rather than a donut chart.
  */
-export function BudgetChip({ ratio, color, size = 96 }: ChipProps) {
+export function BudgetChip({ ratio, color, size = 96, caption = '' }: ChipProps) {
   const r = 41
   const c = 2 * Math.PI * r
   const clamped = Math.min(1, Math.max(0, ratio))
@@ -129,9 +130,11 @@ export function BudgetChip({ ratio, color, size = 96 }: ChipProps) {
       >
         {pct}%
       </text>
-      <text x="55" y="70" textAnchor="middle" fill={color} fillOpacity="0.55" fontSize="11" fontWeight="600">
-        נוצלו
-      </text>
+      {caption && (
+        <text x="55" y="70" textAnchor="middle" fill={color} fillOpacity="0.55" fontSize="11" fontWeight="600">
+          {caption}
+        </text>
+      )}
     </svg>
   )
 }
@@ -273,17 +276,19 @@ export function ChipFace({ value, size = 54 }: { value: number; size?: number })
 export function ChipButton({
   value,
   onClick,
+  label,
   size = 54,
 }: {
   value: number
   onClick: () => void
+  label: string
   size?: number
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`הוסף ${value} שקלים`}
+      aria-label={label}
       className="shrink-0 rounded-full transition active:scale-90"
       style={{ filter: 'drop-shadow(0 2px 4px rgba(20,20,26,0.22))' }}
     >

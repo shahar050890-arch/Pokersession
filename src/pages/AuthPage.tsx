@@ -1,22 +1,25 @@
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { CardFan, SuitField } from '../components/decor'
+import { useI18n } from '../context/I18nContext'
+import type { Translations } from '../lib/i18n'
 import { ErrorNote } from '../components/ui'
 
 type Mode = 'signin' | 'signup'
 
-/** Supabase surfaces English auth errors; map the common ones to Hebrew. */
-function translateError(message: string): string {
+/** Supabase returns raw English auth errors; map the common ones. */
+function translateError(message: string, t: Translations): string {
   const m = message.toLowerCase()
-  if (m.includes('invalid login credentials')) return 'אימייל או סיסמה שגויים'
-  if (m.includes('user already registered')) return 'האימייל הזה כבר רשום. נסה להתחבר.'
-  if (m.includes('password should be at least')) return 'הסיסמה חייבת להכיל לפחות 6 תווים'
-  if (m.includes('unable to validate email')) return 'כתובת האימייל אינה תקינה'
-  if (m.includes('email not confirmed')) return 'צריך לאשר את האימייל לפני ההתחברות'
+  if (m.includes('invalid login credentials')) return t.auth.errBadCreds
+  if (m.includes('user already registered')) return t.auth.errRegistered
+  if (m.includes('password should be at least')) return t.auth.errShortPassword
+  if (m.includes('unable to validate email')) return t.auth.errBadEmail
+  if (m.includes('email not confirmed')) return t.auth.errUnconfirmed
   return message
 }
 
 export default function AuthPage() {
+  const { t } = useI18n()
   const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -30,7 +33,7 @@ export default function AuthPage() {
     setNotice(null)
 
     if (password.length < 6) {
-      setError('הסיסמה חייבת להכיל לפחות 6 תווים')
+      setError(t.auth.errShortPassword)
       return
     }
 
@@ -40,13 +43,13 @@ export default function AuthPage() {
     setBusy(false)
 
     if (authError) {
-      setError(translateError(authError.message))
+      setError(translateError(authError.message, t))
       return
     }
 
     // With email confirmation on, sign-up returns a user but no session.
     if (mode === 'signup' && data.user && !data.session) {
-      setNotice('שלחנו לך אימייל לאישור החשבון. אשר אותו ואז התחבר.')
+      setNotice(t.auth.checkEmail)
     }
   }
 
@@ -72,8 +75,8 @@ export default function AuthPage() {
       <div className="relative w-full max-w-sm">
         <div className="mb-9 flex flex-col items-center text-center">
           <CardFan className="mb-4 h-24 w-32" />
-          <h1 className="text-[32px] font-bold tracking-tight text-white">מעקב פוקר</h1>
-          <p className="mt-2 text-[15px] text-white/70">רווחים, הפסדים ותקציב — במקום אחד.</p>
+          <h1 className="text-[32px] font-bold tracking-tight text-white">{t.auth.title}</h1>
+          <p className="mt-2 text-[15px] text-white/70">{t.auth.tagline}</p>
         </div>
 
         <div className="surface p-5">
@@ -93,7 +96,7 @@ export default function AuthPage() {
                     : 'text-ink-soft dark:text-zinc-400'
                 }`}
               >
-                {m === 'signin' ? 'התחברות' : 'הרשמה'}
+                {m === 'signin' ? t.auth.signIn : t.auth.signUp}
               </button>
             ))}
           </div>
@@ -101,7 +104,7 @@ export default function AuthPage() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
               <label className="label mb-1.5 block" htmlFor="email">
-                אימייל
+                {t.auth.email}
               </label>
               <input
                 id="email"
@@ -109,7 +112,7 @@ export default function AuthPage() {
                 dir="ltr"
                 required
                 autoComplete="email"
-                className="field text-right"
+                className="field text-start"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -118,7 +121,7 @@ export default function AuthPage() {
 
             <div>
               <label className="label mb-1.5 block" htmlFor="password">
-                סיסמה
+                {t.auth.password}
               </label>
               <input
                 id="password"
@@ -127,7 +130,7 @@ export default function AuthPage() {
                 minLength={6}
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 className="field"
-                placeholder="לפחות 6 תווים"
+                placeholder={t.auth.passwordHint}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -141,13 +144,13 @@ export default function AuthPage() {
             )}
 
             <button type="submit" className="btn" disabled={busy}>
-              {busy ? 'רגע…' : mode === 'signin' ? 'התחבר' : 'צור חשבון'}
+              {busy ? t.auth.working : mode === 'signin' ? t.auth.submitIn : t.auth.submitUp}
             </button>
           </form>
         </div>
 
         <p className="mt-6 text-center text-[13px] leading-relaxed text-ink-faint">
-          הנתונים שלך פרטיים. כל משתמש רואה רק את הסשנים שלו.
+          {t.auth.privacy}
         </p>
       </div>
     </div>

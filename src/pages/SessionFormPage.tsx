@@ -9,6 +9,7 @@ import Stepper from '../components/Stepper'
 import { ErrorNote, Spinner, moneyClass } from '../components/ui'
 import { ChipButton, SuitRule } from '../components/decor'
 import { cachedRate, fetchRate, formatRate, isStale, toIls, type Rate } from '../lib/fx'
+import { useI18n } from '../context/I18nContext'
 
 type Slot = 'in' | 'out'
 
@@ -19,6 +20,7 @@ const BUMPS_USD = [5, 25, 100]
 export default function SessionFormPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useI18n()
   const { sessions, settings, locations, loading, addSession, updateSession } = useData()
 
   const editing = sessions.find((s) => s.id === id)
@@ -120,9 +122,9 @@ export default function SessionFormPage() {
   if (id && !loading && !editing) {
     return (
       <div className="pt-10 text-center">
-        <p className="text-ink-soft dark:text-zinc-400">הסשן לא נמצא.</p>
+        <p className="text-ink-soft dark:text-zinc-400">{t.form.notFound}</p>
         <button className="btn mt-6" onClick={() => navigate('/sessions')}>
-          חזרה לרשימה
+          {t.form.backToList}
         </button>
       </div>
     )
@@ -147,10 +149,10 @@ export default function SessionFormPage() {
 
   function validate(): string | null {
     if (currency === 'USD' && rateValue === null)
-      return 'אין שער חליפין זמין כרגע. עבור לשקלים או נסה שוב מאוחר יותר.'
-    if (buyIn === '' || buyInNum <= 0) return 'צריך למלא כמה נכנסת'
-    if (cashOut === '') return 'צריך למלא כמה יצאת — 0 אם יצאת בלי כלום'
-    if (duration.trim() !== '' && Number(duration) < 0) return 'משך הזמן לא יכול להיות שלילי'
+      return t.form.errNoRate
+    if (buyIn === '' || buyInNum <= 0) return t.form.errNoBuyIn
+    if (cashOut === '') return t.form.errNoCashOut
+    if (duration.trim() !== '' && Number(duration) < 0) return t.form.errNegativeDuration
     return null
   }
 
@@ -178,7 +180,7 @@ export default function SessionFormPage() {
       else await addSession(payload)
       navigate('/sessions')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'השמירה נכשלה')
+      setError(e instanceof Error ? e.message : t.form.errSaveFailed)
       submitting.current = false
       setBusy(false)
     }
@@ -192,34 +194,34 @@ export default function SessionFormPage() {
     }
     // Going over budget warns once, then saves anyway if confirmed.
     if (overBudgetBy !== null && !warning) {
-      setWarning(`הסשן הזה יוציא אותך מהתקציב החודשי ב-${formatMoney(overBudgetBy)}.`)
+      setWarning(t.form.overBody(formatMoney(overBudgetBy)))
       return
     }
     void save()
   }
 
   const dateChips: Array<[string, string]> = [
-    [todayIso(), 'היום'],
-    [shiftDays(todayIso(), -1), 'אתמול'],
-    [shiftDays(todayIso(), -2), 'שלשום'],
+    [todayIso(), t.form.today],
+    [shiftDays(todayIso(), -1), t.form.yesterday],
+    [shiftDays(todayIso(), -2), t.form.dayBefore],
   ]
 
   return (
     <div className="pb-4">
       <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-[26px] font-bold tracking-tight">{id ? 'עריכת סשן' : 'סשן חדש'}</h1>
-        <div className="flex rounded-full border border-line p-0.5 dark:border-night-line">
+        <h1 className="text-[22px] font-bold tracking-tight">{id ? t.form.editTitle : t.form.newTitle}</h1>
+        <div className="flex shrink-0 rounded-full border border-line p-0.5 dark:border-night-line">
           {(
             [
-              ['cash', '♠ קאש'],
-              ['tournament', '♦ טורניר'],
+              ['cash', `♠ ${t.form.cash}`],
+              ['tournament', `♦ ${t.form.tournament}`],
             ] as const
           ).map(([v, l]) => (
             <button
               key={v}
               type="button"
               onClick={() => setGameType(v)}
-              className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition ${
+              className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
                 gameType === v
                   ? 'bg-ink text-white dark:bg-white dark:text-night-bg'
                   : 'text-ink-soft dark:text-zinc-400'
@@ -264,13 +266,13 @@ export default function SessionFormPage() {
           <span className="text-[13px] text-ink-soft dark:text-zinc-400">
             {rateValue !== null ? (
               <>
-                שער <span className="num font-semibold">{formatRate(rateValue)}</span>
-                {rate && isStale(rate) && <span className="text-flag"> · לא עדכני</span>}
+                {t.form.rate} <span className="num font-semibold">{formatRate(rateValue)}</span>
+                {rate && isStale(rate) && <span className="text-flag"> · {t.form.rateStale}</span>}
               </>
             ) : rateLoading ? (
-              'טוען שער…'
+              t.form.rateLoading
             ) : (
-              <span className="text-down dark:text-down-night">אין שער זמין</span>
+              <span className="text-down dark:text-down-night">{t.form.rateNone}</span>
             )}
           </span>
         )}
@@ -280,8 +282,8 @@ export default function SessionFormPage() {
       <div className="surface overflow-hidden">
         {(
           [
-            ['in', entries > 1 ? 'כניסה בודדת' : 'כמה נכנסת', buyIn],
-            ['out', 'כמה יצאת', cashOut],
+            ['in', entries > 1 ? t.form.singleBuyIn : t.form.howMuchIn, buyIn],
+            ['out', t.form.howMuchOut, cashOut],
           ] as const
         ).map(([key, label, value], i) => {
           const on = slot === key
@@ -290,7 +292,7 @@ export default function SessionFormPage() {
               key={key}
               type="button"
               onClick={() => setSlot(key)}
-              className={`flex w-full items-baseline justify-between px-5 py-4 text-right transition ${
+              className={`flex w-full items-baseline justify-between px-5 py-4 text-start transition ${
                 i === 1 ? 'border-t hairline' : ''
               } ${on ? 'bg-line/40 dark:bg-night-line/40' : ''}`}
             >
@@ -310,10 +312,10 @@ export default function SessionFormPage() {
 
       {currency === 'USD' && rateValue !== null && (typedBuyIn > 0 || typedCashOut > 0) && (
         <div className="mt-3 flex items-center justify-between rounded-xl2 border border-line bg-card px-4 py-3 dark:border-night-line dark:bg-night-card">
-          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">יישמר בשקלים</span>
+          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">{t.form.willSaveIls}</span>
           <span className="num text-[15px] font-semibold">
-            {formatMoney(buyInNum)} <span className="text-ink-faint">כניסה</span> ·{' '}
-            {formatMoney(cashOutNum)} <span className="text-ink-faint">יציאה</span>
+            {formatMoney(buyInNum)} <span className="text-ink-faint">{t.form.inShort}</span> ·{' '}
+            {formatMoney(cashOutNum)} <span className="text-ink-faint">{t.form.outShort}</span>
           </span>
         </div>
       )}
@@ -322,7 +324,7 @@ export default function SessionFormPage() {
           in full rather than left implied by a small "total" label. */}
       {entries > 1 && buyInNum > 0 && (
         <div className="mt-3 flex items-center justify-between rounded-xl2 border border-brass/40 bg-brass/[0.07] px-4 py-3">
-          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">סך הכל נכנס</span>
+          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">{t.form.totalIn}</span>
           <span className="num text-[17px] font-bold">
             {entries} × {formatMoney(buyInNum)} ={' '}
             <span className="text-[20px]">{formatMoney(totalIn)}</span>
@@ -333,20 +335,20 @@ export default function SessionFormPage() {
       {/* Live result — the whole reason for logging the session. */}
       {started && (
         <div className="mt-3 flex items-baseline justify-between px-2">
-          <span className="label">רווח / הפסד</span>
+          <span className="label">{t.form.profitLoss}</span>
           <span className={`num text-[26px] font-bold ${moneyClass(profit)}`}>{formatSigned(profit)}</span>
         </div>
       )}
 
       <div className="mt-4 flex items-center justify-center gap-4">
         {(currency === 'USD' ? BUMPS_USD : BUMPS_ILS).map((b) => (
-          <ChipButton key={b} value={b} onClick={() => bump(b)} />
+          <ChipButton key={b} value={b} label={t.a11y.addChip(b)} onClick={() => bump(b)} />
         ))}
         <button
           type="button"
           onClick={() => setActive('')}
           disabled={active === ''}
-          aria-label="נקה"
+          aria-label={t.form.clear}
           className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full
                      border border-dashed border-line text-ink-faint transition active:scale-90
                      disabled:opacity-25 dark:border-night-line"
@@ -366,18 +368,18 @@ export default function SessionFormPage() {
           onBackspace={onBackspace}
           onDone={attemptSave}
           busy={busy}
-          doneLabel={id ? 'שמור שינויים' : 'שמור סשן'}
+          doneLabel={id ? t.form.saveEdit : t.form.save}
         />
       </div>
 
       <div className="surface mt-4 divide-y divide-line px-5 dark:divide-night-line">
         <div className="py-4">
           <Stepper
-            label="כמה פעמים נכנסת"
+            label={t.form.timesIn}
             hint={
               entries > 1
-                ? `הסכום למעלה יוכפל ב-${entries}`
-                : 'השאר על 1 אם רשמת למעלה את הסכום הכולל'
+                ? t.form.timesHintMany(entries)
+                : t.form.timesHintOne
             }
             value={entries}
             onChange={setEntries}
@@ -387,7 +389,7 @@ export default function SessionFormPage() {
         </div>
 
         <div className="py-4">
-          <p className="label mb-2.5">מתי</p>
+          <p className="label mb-2.5">{t.form.when}</p>
           <div className="rail">
             {dateChips.map(([value, label]) => (
               <button
@@ -406,18 +408,18 @@ export default function SessionFormPage() {
               className={`chip num min-w-[9.5rem] ${
                 dateChips.every(([v]) => v !== date) ? 'chip-on' : ''
               }`}
-              aria-label="תאריך אחר"
+              aria-label={t.form.otherDate}
             />
           </div>
         </div>
 
         <div className="py-4">
-          <p className="label mb-2.5">איפה</p>
+          <p className="label mb-2.5">{t.form.where}</p>
           {customLocation ? (
             <input
               autoFocus
               className="field"
-              placeholder="שם המקום"
+              placeholder={t.form.placeName}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               onBlur={() => {
@@ -437,7 +439,7 @@ export default function SessionFormPage() {
                 </button>
               ))}
               <button type="button" onClick={() => setCustomLocation(true)} className="chip">
-                {locations.length === 0 ? '+ הוסף מקום' : '+ אחר'}
+                {locations.length === 0 ? t.form.addPlace : t.form.otherPlace}
               </button>
             </div>
           )}
@@ -449,10 +451,12 @@ export default function SessionFormPage() {
             onClick={() => setShowMore((v) => !v)}
             className="row-press -mx-5 flex w-[calc(100%+2.5rem)] items-center justify-between px-5 py-3.5"
           >
-            <span className="label">משך זמן והערות</span>
+            <span className="label">{t.form.more}</span>
             <svg
               viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              className={`h-4 w-4 text-ink-faint transition-transform ${showMore ? 'rotate-90' : '-rotate-90'}`}
+              className={`h-4 w-4 text-ink-faint transition-transform ${
+                showMore ? 'rotate-90' : '-rotate-90 rtl:rotate-90 rtl:-scale-x-100'
+              }`}
               strokeLinecap="round" strokeLinejoin="round"
             >
               <path d="M15 18l-6-6 6-6" />
@@ -466,14 +470,14 @@ export default function SessionFormPage() {
                 inputMode="numeric"
                 min="0"
                 className="field"
-                placeholder="משך בדקות"
+                placeholder={t.form.minutes}
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
               />
               <textarea
                 rows={3}
                 className="field resize-none"
-                placeholder="הערות"
+                placeholder={t.form.notes}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
@@ -486,7 +490,7 @@ export default function SessionFormPage() {
 
       {warning && (
         <div className="mt-4 rounded-xl2 border border-flag/40 bg-flag-soft p-4 dark:border-flag-night/30 dark:bg-flag/10">
-          <p className="font-semibold text-flag dark:text-flag-night">חריגה מהתקציב</p>
+          <p className="font-semibold text-flag dark:text-flag-night">{t.form.overTitle}</p>
           <p className="mt-1 text-[15px] leading-relaxed text-ink dark:text-zinc-300">{warning}</p>
           <div className="mt-4 flex gap-3">
             <button
@@ -495,14 +499,14 @@ export default function SessionFormPage() {
               disabled={busy}
               className="flex-1 rounded-xl bg-flag py-3 text-[16px] font-semibold text-white transition active:scale-[0.98] disabled:opacity-50"
             >
-              {busy ? 'שומר…' : 'שמור בכל זאת'}
+              {busy ? t.form.saving : t.form.overSave}
             </button>
             <button
               type="button"
               onClick={() => setWarning(null)}
               className="flex-1 rounded-xl border border-line py-3 text-[16px] font-medium text-ink-soft dark:border-night-line dark:text-zinc-300"
             >
-              חזור
+              {t.form.overBack}
             </button>
           </div>
         </div>
@@ -510,7 +514,7 @@ export default function SessionFormPage() {
 
       {id && !warning && (
         <button type="button" onClick={() => navigate('/sessions')} className="btn-quiet mt-3">
-          ביטול
+          {t.form.cancel}
         </button>
       )}
     </div>

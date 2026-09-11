@@ -5,11 +5,12 @@ import { formatDuration, formatMoney, formatSigned, monthKey, formatMonth, relat
 import type { GameType, PokerSession } from '../lib/types'
 import { PencilIcon, TrashIcon } from '../components/icons'
 import { FeltHeader, SuitMark } from '../components/decor'
+import { useI18n } from '../context/I18nContext'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 
-const GAME_LABEL: Record<GameType, string> = { cash: 'קאש', tournament: 'טורניר' }
-
 export default function SessionsPage() {
+  const { t } = useI18n()
+  const GAME_LABEL: Record<GameType, string> = { cash: t.form.cash, tournament: t.form.tournament }
   const { sessions, loading, error, locations, deleteSession } = useData()
   const navigate = useNavigate()
   const [gameFilter, setGameFilter] = useState<GameType | 'all'>('all')
@@ -45,11 +46,11 @@ export default function SessionsPage() {
   if (sessions.length === 0) {
     return (
       <EmptyState
-        title="אין עדיין סשנים"
-        body="ברגע שתרשום סשן ראשון הוא יופיע כאן."
+        title={t.list.emptyTitle}
+        body={t.list.emptyBody}
         action={
           <Link to="/add" className="btn block text-center">
-            רשום סשן ראשון
+            {t.list.emptyCta}
           </Link>
         }
       />
@@ -63,7 +64,7 @@ export default function SessionsPage() {
       setPendingDelete(null)
       setOpenId(null)
     } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : 'המחיקה נכשלה')
+      setDeleteError(e instanceof Error ? e.message : t.list.errDeleteFailed)
     }
   }
 
@@ -72,7 +73,7 @@ export default function SessionsPage() {
   return (
     <div>
       <FeltHeader
-        title="סשנים"
+        title={t.list.title}
         right={
           <span className="num rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold">
             {filtered.length}
@@ -88,7 +89,7 @@ export default function SessionsPage() {
           }}
           className={`chip ${hasFilter ? '' : 'chip-on'}`}
         >
-          הכול
+          {t.list.all}
         </button>
         {(['cash', 'tournament'] as const).map((g) => (
           <button
@@ -115,7 +116,7 @@ export default function SessionsPage() {
 
       {filtered.length === 0 ? (
         <p className="surface px-5 py-10 text-center text-[15px] text-ink-soft dark:text-zinc-400">
-          אין סשנים שמתאימים לסינון.
+          {t.list.noMatch}
         </p>
       ) : (
         <div className="space-y-5">
@@ -142,7 +143,7 @@ export default function SessionsPage() {
                             setOpenId(open ? null : s.id)
                             setPendingDelete(null)
                           }}
-                          className="row-press flex w-full items-center justify-between gap-3 px-5 py-3.5 text-right"
+                          className="row-press flex w-full items-center justify-between gap-3 px-5 py-3.5 text-start"
                         >
                           <span className="flex min-w-0 items-center gap-3">
                             <SuitMark type={s.game_type} />
@@ -151,8 +152,8 @@ export default function SessionsPage() {
                                 {s.location || GAME_LABEL[s.game_type]}
                               </span>
                               <span className="mt-0.5 block text-[13px] text-ink-soft dark:text-zinc-500">
-                                {relativeDate(s.date)}
-                                {s.rebuys > 0 ? ` · ${s.rebuys + 1} כניסות` : ''}
+                                {relativeDate(s.date, { today: t.form.today, yesterday: t.form.yesterday })}
+                                {s.rebuys > 0 ? ` · ${t.list.entries(s.rebuys + 1)}` : ''}
                               </span>
                             </span>
                           </span>
@@ -166,15 +167,15 @@ export default function SessionsPage() {
                             <dl className="space-y-2 text-[14px]">
                               {(
                                 [
-                                  ['סוג', GAME_LABEL[s.game_type]],
-                                  ['סך כניסות', formatMoney(s.total_in)],
-                                  ['יציאה', formatMoney(s.cash_out)],
-                                  ['משך', formatDuration(s.duration_minutes)],
+                                  [t.list.type, GAME_LABEL[s.game_type]],
+                                  [t.list.totalIn, formatMoney(s.total_in)],
+                                  [t.list.cashOut, formatMoney(s.cash_out)],
+                                  [t.list.duration, formatDuration(s.duration_minutes, t.units)],
                                   ...(s.entry_currency === 'USD' && s.fx_rate
                                     ? ([
                                         [
-                                          'נרשם בדולרים',
-                                          `$${Math.round((s.total_in / s.fx_rate) * 100) / 100} · שער ${s.fx_rate}`,
+                                          t.list.inUsd,
+                                          `$${Math.round((s.total_in / s.fx_rate) * 100) / 100} · ${t.form.rate} ${s.fx_rate}`,
                                         ],
                                       ] as const)
                                     : []),
@@ -199,13 +200,13 @@ export default function SessionsPage() {
                                   onClick={() => void confirmDelete(s.id)}
                                   className="flex-1 rounded-xl bg-down py-2.5 text-[15px] font-semibold text-white"
                                 >
-                                  כן, מחק
+                                  {t.list.confirmDelete}
                                 </button>
                                 <button
                                   onClick={() => setPendingDelete(null)}
                                   className="flex-1 rounded-xl border border-line py-2.5 text-[15px] font-medium text-ink-soft dark:border-night-line dark:text-zinc-300"
                                 >
-                                  ביטול
+                                  {t.list.cancel}
                                 </button>
                               </div>
                             ) : (
@@ -215,14 +216,14 @@ export default function SessionsPage() {
                                   className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-[15px] font-medium dark:border-night-line"
                                 >
                                   <PencilIcon />
-                                  ערוך
+                                  {t.list.edit}
                                 </button>
                                 <button
                                   onClick={() => setPendingDelete(s.id)}
                                   className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-[15px] font-medium text-down dark:border-night-line dark:text-down-night"
                                 >
                                   <TrashIcon />
-                                  מחק
+                                  {t.list.delete}
                                 </button>
                               </div>
                             )}

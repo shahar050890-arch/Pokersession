@@ -1,3 +1,5 @@
+import { useI18n } from '../context/I18nContext'
+
 interface Props {
   onDigit: (d: string) => void
   onBackspace: () => void
@@ -15,6 +17,7 @@ const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0']
  * typed here instead — every key is a full-height tap target.
  */
 export default function Keypad({ onDigit, onBackspace, onDone, doneLabel, busy = false }: Props) {
+  const { t } = useI18n()
   return (
     /* Forced LTR: a number pad is muscle memory — 1 belongs top-left even in RTL. */
     <div dir="ltr" className="grid grid-cols-3 gap-2">
@@ -34,7 +37,7 @@ export default function Keypad({ onDigit, onBackspace, onDone, doneLabel, busy =
       <button
         type="button"
         onClick={onBackspace}
-        aria-label="מחק ספרה"
+        aria-label={t.a11y.deleteDigit}
         className="flex items-center justify-center rounded-xl2 bg-card py-4 text-ink-soft shadow-soft
                    transition active:scale-95 active:bg-line dark:bg-night-card dark:text-zinc-400
                    dark:shadow-none dark:active:bg-night-line"
@@ -57,7 +60,7 @@ export default function Keypad({ onDigit, onBackspace, onDone, doneLabel, busy =
         {busy && (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white dark:border-night-bg/30 dark:border-t-night-bg" />
         )}
-        {busy ? 'שומר…' : doneLabel}
+        {busy ? t.form.saving : doneLabel}
       </button>
     </div>
   )
