@@ -19,6 +19,30 @@ interface DataValue {
 
 const DataContext = createContext<DataValue | null>(null)
 
+/**
+ * A token minted moments earlier can be rejected as "issued at future" when
+ * the validating service's clock sits a fraction behind the one that issued
+ * it. It is transient and clears on its own, so the request is simply tried
+ * again rather than surfaced as a failure.
+ */
+function isClockSkewError(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false
+  if (error.code === 'PGRST301') return true
+  const m = (error.message ?? '').toLowerCase()
+  return m.includes('issued at future') || m.includes('jwt')
+}
+
+const RETRY_DELAY_MS = 800
+
+async function withAuthRetry<T>(
+  run: () => PromiseLike<{ data: T; error: { code?: string; message?: string } | null }>,
+): Promise<{ data: T; error: { code?: string; message?: string } | null }> {
+  const first = await run()
+  if (!isClockSkewError(first.error)) return first
+  await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
+  return run()
+}
+
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [sessions, setSessions] = useState<PokerSession[]>([])
@@ -36,18 +60,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     setError(null)
     const [sessionsRes, settingsRes] = await Promise.all([
-      supabase
-        .from('poker_sessions')
-        .select('*')
-        .order('date', { ascending: false })
-        .order('created_at', { ascending: false }),
-      supabase.from('budget_settings').select('*').maybeSingle(),
+      withAuthRetry(() =>
+        supabase
+          .from('poker_sessions')
+          .select('*')
+          .order('date', { ascending: false })
+          .order('created_at', { ascending: false }),
+      ),
+      withAuthRetry(() => supabase.from('budget_settings').select('*').maybeSingle()),
     ])
 
-    if (sessionsRes.error) setError(sessionsRes.error.message)
+    if (sessionsRes.error) setError(sessionsRes.error.message ?? 'טעינת הסשנים נכשלה')
     else setSessions(sessionsRes.data as PokerSession[])
 
-    if (settingsRes.error) setError(settingsRes.error.message)
+    if (settingsRes.error) setError(settingsRes.error.message ?? 'טעינת ההגדרות נכשלה')
     else setSettings((settingsRes.data as BudgetSettings | null) ?? null)
 
     setLoading(false)
