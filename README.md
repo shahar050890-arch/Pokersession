@@ -11,11 +11,14 @@ React 18 · Vite · TypeScript · Tailwind CSS · Recharts · Supabase (Auth + P
 
 ```bash
 npm install
-cp .env.example .env      # מלא את הערכים של פרויקט ה-Supabase שלך
 npm run dev
 ```
 
-משתני סביבה נדרשים:
+האפליקציה מצביעה כברירת מחדל על פרויקט ה-Supabase שלה (`src/lib/supabase.ts`).
+המפתח שם הוא publishable — הוא נשלח ממילא לדפדפן של כל מבקר, ולבדו אינו מעניק
+גישה לשום דבר: RLS הוא מה שקובע מה כל משתמש מחובר יכול לקרוא ולכתוב.
+
+כדי להצביע על פרויקט Supabase אחר, צור `.env` (ראה `.env.example`):
 
 | משתנה | מה זה |
 |---|---|
