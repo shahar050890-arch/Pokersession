@@ -7,6 +7,7 @@ import type { PokerSession } from '../lib/types'
 import BudgetCard from '../components/BudgetCard'
 import StatRow from '../components/StatRow'
 import { ChartEmpty, CumulativeChart, PerSessionChart, type ChartPoint } from '../components/Charts'
+import { CardFan, Felt } from '../components/decor'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 
 type Range = 'month' | 'quarter' | 'year' | 'all'
@@ -86,6 +87,7 @@ export default function Dashboard() {
     return (
       <div>
         <EmptyState
+          art={<CardFan className="h-24 w-32" />}
           title="בוא נתחיל"
           body="רשום כל סשן — כמה נכנסת, כמה יצאת. עם הזמן תראה את המגמה שלך, ותוכל להגדיר תקציב חודשי שישמור עליך."
           action={
@@ -107,16 +109,19 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-      {/* One figure leads the screen; everything else supports it. */}
-      <header className="pb-1 pt-2">
-        <p className="label">רווח כולל</p>
-        <p className={`num mt-1 text-hero ${moneyClass(stats.totalProfit)}`}>
+      {/* One figure leads the screen, sitting on the table it came from. */}
+      <Felt className="rounded-xl3 px-6 py-7 shadow-lift">
+        <p className="text-[13px] font-medium text-white/60">רווח כולל</p>
+        <p
+          className="num mt-1 text-hero"
+          style={{ color: stats.totalProfit < 0 ? '#FCA5A5' : '#FFFFFF' }}
+        >
           {formatSigned(stats.totalProfit)}
         </p>
-        <p className="mt-2 text-[15px] text-ink-soft dark:text-zinc-400">
+        <p className="mt-2 text-[15px] text-white/70">
           {stats.count} סשנים · {formatMoney(stats.totalIn)} נכנסו לשולחן
         </p>
-      </header>
+      </Felt>
 
       {error && <ErrorNote>{error}</ErrorNote>}
 

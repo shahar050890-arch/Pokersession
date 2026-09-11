@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { SpadeIcon } from './icons'
+import { CardFan } from './decor'
 
 export function Spinner({ label }: { label?: string }) {
   return (
@@ -18,12 +18,20 @@ export function ErrorNote({ children }: { children: ReactNode }) {
   )
 }
 
-export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
+export function EmptyState({
+  title,
+  body,
+  action,
+  art,
+}: {
+  title: string
+  body: string
+  action?: ReactNode
+  art?: ReactNode
+}) {
   return (
     <div className="flex flex-col items-center px-6 py-14 text-center">
-      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-ink text-white dark:bg-white dark:text-night-bg">
-        <SpadeIcon className="h-7 w-7" />
-      </div>
+      <div className="mb-5">{art ?? <CardFan />}</div>
       <h2 className="text-[22px] font-bold tracking-tight">{title}</h2>
       <p className="mx-auto mt-2 max-w-[19rem] text-[15px] leading-relaxed text-ink-soft dark:text-zinc-400">
         {body}

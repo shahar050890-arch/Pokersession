@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import { SpadeIcon } from '../components/icons'
+import { CardFan, SuitField } from '../components/decor'
 import { ErrorNote } from '../components/ui'
 
 type Mode = 'signin' | 'signup'
@@ -51,16 +51,29 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-5 py-10">
-      <div className="w-full max-w-sm">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-10">
+      {/* The sign-in screen is the one place the table can be felt outright. */}
+      <div className="absolute inset-x-0 top-0 h-[46vh] bg-felt" />
+      <div
+        className="absolute inset-x-0 top-0 h-[46vh]"
+        style={{
+          background:
+            'radial-gradient(90% 70% at 50% 0%, rgba(255,255,255,0.18), rgba(255,255,255,0) 65%)',
+        }}
+      />
+      <div className="absolute inset-x-0 top-0 h-[46vh] text-white">
+        <SuitField opacity={0.07} scale={58} />
+      </div>
+      <div
+        className="absolute inset-x-0 bg-paper dark:bg-night-bg"
+        style={{ top: '46vh', bottom: 0 }}
+      />
+
+      <div className="relative w-full max-w-sm">
         <div className="mb-9 flex flex-col items-center text-center">
-          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-ink text-white dark:bg-white dark:text-night-bg">
-            <SpadeIcon className="h-8 w-8" />
-          </div>
-          <h1 className="text-[32px] font-bold tracking-tight">מעקב פוקר</h1>
-          <p className="mt-2 text-[15px] text-ink-soft dark:text-zinc-400">
-            רווחים, הפסדים ותקציב — במקום אחד.
-          </p>
+          <CardFan className="mb-4 h-24 w-32" />
+          <h1 className="text-[32px] font-bold tracking-tight text-white">מעקב פוקר</h1>
+          <p className="mt-2 text-[15px] text-white/70">רווחים, הפסדים ותקציב — במקום אחד.</p>
         </div>
 
         <div className="surface p-5">

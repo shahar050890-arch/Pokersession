@@ -174,8 +174,8 @@ export default function SessionFormPage() {
         <div className="flex rounded-full border border-line p-0.5 dark:border-night-line">
           {(
             [
-              ['cash', 'קאש'],
-              ['tournament', 'טורניר'],
+              ['cash', '♠ קאש'],
+              ['tournament', '♦ טורניר'],
             ] as const
           ).map(([v, l]) => (
             <button
@@ -198,7 +198,7 @@ export default function SessionFormPage() {
       <div className="surface overflow-hidden">
         {(
           [
-            ['in', 'כמה נכנסת', buyIn],
+            ['in', entries > 1 ? 'כניסה בודדת' : 'כמה נכנסת', buyIn],
             ['out', 'כמה יצאת', cashOut],
           ] as const
         ).map(([key, label, value], i) => {
@@ -226,12 +226,22 @@ export default function SessionFormPage() {
         })}
       </div>
 
+      {/* The multiplier is the easiest thing to get wrong, so it is spelled out
+          in full rather than left implied by a small "total" label. */}
+      {entries > 1 && buyInNum > 0 && (
+        <div className="mt-3 flex items-center justify-between rounded-xl2 border border-brass/40 bg-brass/[0.07] px-4 py-3">
+          <span className="text-[13px] font-medium text-ink-soft dark:text-zinc-400">סך הכל נכנס</span>
+          <span className="num text-[17px] font-bold">
+            {entries} × {formatMoney(buyInNum)} ={' '}
+            <span className="text-[20px]">{formatMoney(totalIn)}</span>
+          </span>
+        </div>
+      )}
+
       {/* Live result — the whole reason for logging the session. */}
       {started && (
         <div className="mt-3 flex items-baseline justify-between px-2">
-          <span className="label">
-            {entries > 1 ? `סך כניסות ${formatMoney(totalIn)}` : 'רווח / הפסד'}
-          </span>
+          <span className="label">רווח / הפסד</span>
           <span className={`num text-[26px] font-bold ${moneyClass(profit)}`}>{formatSigned(profit)}</span>
         </div>
       )}
@@ -263,7 +273,11 @@ export default function SessionFormPage() {
         <div className="py-4">
           <Stepper
             label="כמה פעמים נכנסת"
-            hint={entries > 1 ? `${entries} × ${formatMoney(buyInNum)} = ${formatMoney(totalIn)}` : 'כניסה אחת'}
+            hint={
+              entries > 1
+                ? `הסכום למעלה יוכפל ב-${entries}`
+                : 'השאר על 1 אם רשמת למעלה את הסכום הכולל'
+            }
             value={entries}
             onChange={setEntries}
             min={1}

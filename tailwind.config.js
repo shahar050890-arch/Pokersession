@@ -22,6 +22,15 @@ export default {
           card: '#151519',
           line: '#26262C',
         },
+        // Table felt — the app's one piece of atmosphere.
+        felt: {
+          DEFAULT: '#10402F',
+          deep: '#0A2B20',
+          light: '#17523C',
+        },
+        // The red of a heart or diamond; distinct from the loss red.
+        suit: { red: '#C8102E' },
+        brass: '#C9A227',
         // One accent, used only where money is at stake.
         up: { DEFAULT: '#0E9F6E', soft: '#E7F6F0', night: '#34D399' },
         down: { DEFAULT: '#DC4B45', soft: '#FCEDEC', night: '#F87171' },

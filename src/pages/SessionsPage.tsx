@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext'
 import { formatDuration, formatMoney, formatSigned, monthKey, formatMonth, relativeDate } from '../lib/format'
 import type { GameType, PokerSession } from '../lib/types'
 import { PencilIcon, TrashIcon } from '../components/icons'
+import { SuitMark } from '../components/decor'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 
 const GAME_LABEL: Record<GameType, string> = { cash: 'קאש', tournament: 'טורניר' }
@@ -136,13 +137,16 @@ export default function SessionsPage() {
                           }}
                           className="row-press flex w-full items-center justify-between gap-3 px-5 py-3.5 text-right"
                         >
-                          <span className="min-w-0">
-                            <span className="block truncate text-[16px] font-medium">
-                              {s.location || GAME_LABEL[s.game_type]}
-                            </span>
-                            <span className="mt-0.5 block text-[13px] text-ink-soft dark:text-zinc-500">
-                              {relativeDate(s.date)}
-                              {s.rebuys > 0 ? ` · ${s.rebuys + 1} כניסות` : ''}
+                          <span className="flex min-w-0 items-center gap-3">
+                            <SuitMark type={s.game_type} />
+                            <span className="min-w-0">
+                              <span className="block truncate text-[16px] font-medium">
+                                {s.location || GAME_LABEL[s.game_type]}
+                              </span>
+                              <span className="mt-0.5 block text-[13px] text-ink-soft dark:text-zinc-500">
+                                {relativeDate(s.date)}
+                                {s.rebuys > 0 ? ` · ${s.rebuys + 1} כניסות` : ''}
+                              </span>
                             </span>
                           </span>
                           <span className={`num shrink-0 text-[18px] font-bold ${moneyClass(s.profit)}`}>
