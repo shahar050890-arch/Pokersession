@@ -4,7 +4,7 @@ import { useData } from '../context/DataContext'
 import { formatDuration, formatMoney, formatSigned, monthKey, formatMonth, relativeDate } from '../lib/format'
 import type { GameType, PokerSession } from '../lib/types'
 import { PencilIcon, TrashIcon } from '../components/icons'
-import { SuitMark } from '../components/decor'
+import { FeltHeader, SuitMark } from '../components/decor'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 
 const GAME_LABEL: Record<GameType, string> = { cash: 'קאש', tournament: 'טורניר' }
@@ -71,7 +71,14 @@ export default function SessionsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 pt-2 text-[26px] font-bold tracking-tight">סשנים</h1>
+      <FeltHeader
+        title="סשנים"
+        right={
+          <span className="num rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold">
+            {filtered.length}
+          </span>
+        }
+      />
 
       <div className="rail mb-4">
         <button

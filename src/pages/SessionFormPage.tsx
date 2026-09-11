@@ -7,11 +7,12 @@ import type { GameType, SessionInput } from '../lib/types'
 import Keypad from '../components/Keypad'
 import Stepper from '../components/Stepper'
 import { ErrorNote, Spinner, moneyClass } from '../components/ui'
+import { ChipButton, SuitRule } from '../components/decor'
 
 type Slot = 'in' | 'out'
 
 /** Quick top-ups sized to common Israeli buy-ins. */
-const BUMPS = [100, 200, 500]
+const BUMPS = [25, 100, 500]
 
 export default function SessionFormPage() {
   const { id } = useParams()
@@ -246,18 +247,27 @@ export default function SessionFormPage() {
         </div>
       )}
 
-      <div className="rail mt-4">
+      <div className="mt-4 flex items-center justify-center gap-4">
         {BUMPS.map((b) => (
-          <button key={b} type="button" onClick={() => bump(b)} className="chip num">
-            +{b}
-          </button>
+          <ChipButton key={b} value={b} onClick={() => bump(b)} />
         ))}
-        {active !== '' && (
-          <button type="button" onClick={() => setActive('')} className="chip">
-            נקה
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setActive('')}
+          disabled={active === ''}
+          aria-label="נקה"
+          className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full
+                     border border-dashed border-line text-ink-faint transition active:scale-90
+                     disabled:opacity-25 dark:border-night-line"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+            className="h-5 w-5" strokeLinecap="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
+
+      <SuitRule className="mt-5" />
 
       <div className="mt-4">
         <Keypad

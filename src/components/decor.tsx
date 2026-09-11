@@ -213,3 +213,143 @@ export function SuitMark({ type, className = '' }: { type: 'cash' | 'tournament'
     </span>
   )
 }
+
+/**
+ * Casino chips carry their value in their colour — black hundreds, blue
+ * five-hundreds, purple for the big one. Using the real denomination palette
+ * means the quick-add buttons are readable at a glance without reading them.
+ */
+const DENOM: Record<number, { body: string; rim: string; ink: string }> = {
+  25: { body: '#1E7A4C', rim: '#FFFFFF', ink: '#FFFFFF' },
+  50: { body: '#C8752B', rim: '#FFFFFF', ink: '#FFFFFF' },
+  100: { body: '#1B1B22', rim: '#FFFFFF', ink: '#FFFFFF' },
+  200: { body: '#1F4E8C', rim: '#FFFFFF', ink: '#FFFFFF' },
+  500: { body: '#5B2D82', rim: '#FFFFFF', ink: '#FFFFFF' },
+  1000: { body: '#B08322', rim: '#FFFFFF', ink: '#FFFFFF' },
+}
+
+function chipColors(value: number) {
+  return DENOM[value] ?? { body: '#3F3F46', rim: '#FFFFFF', ink: '#FFFFFF' }
+}
+
+/** The chip face itself, without any button chrome around it. */
+export function ChipFace({ value, size = 54 }: { value: number; size?: number }) {
+  const { body, rim, ink } = chipColors(value)
+  return (
+    <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden className="shrink-0">
+      <defs>
+        <radialGradient id={`cg-${value}`} cx="50%" cy="32%" r="72%">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.28" />
+          <stop offset="65%" stopColor="#FFFFFF" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      <circle cx="32" cy="32" r="31" fill={body} />
+      {/* six rim inlays, the mark of a real chip */}
+      {Array.from({ length: 6 }, (_, i) => (
+        <rect
+          key={i}
+          x="28" y="1.5" width="8" height="10" rx="2"
+          fill={rim} fillOpacity="0.92"
+          transform={`rotate(${i * 60} 32 32)`}
+        />
+      ))}
+      <circle cx="32" cy="32" r="23" fill="none" stroke={rim} strokeOpacity="0.85" strokeWidth="2" />
+      <circle cx="32" cy="32" r="19.5" fill={body} />
+      <circle cx="32" cy="32" r="31" fill={`url(#cg-${value})`} />
+      <circle cx="32" cy="32" r="31" fill="none" stroke="#000" strokeOpacity="0.18" strokeWidth="1.5" />
+      <text
+        x="32" y="33" textAnchor="middle" dominantBaseline="central"
+        fill={ink} fontSize={value >= 1000 ? 14 : 17} fontWeight="800"
+        style={{ fontVariantNumeric: 'tabular-nums' }}
+      >
+        {value}
+      </text>
+    </svg>
+  )
+}
+
+/** A chip you can press — the quick-add control on the entry screen. */
+export function ChipButton({
+  value,
+  onClick,
+  size = 54,
+}: {
+  value: number
+  onClick: () => void
+  size?: number
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`הוסף ${value} שקלים`}
+      className="shrink-0 rounded-full transition active:scale-90"
+      style={{ filter: 'drop-shadow(0 2px 4px rgba(20,20,26,0.22))' }}
+    >
+      <ChipFace value={value} size={size} />
+    </button>
+  )
+}
+
+/** A leaning stack of chips, for decoration where there is room for it. */
+export function ChipStack({ className = 'h-16 w-16' }: { className?: string }) {
+  const stack = [500, 100, 200, 100]
+  return (
+    <svg viewBox="0 0 80 92" className={className} aria-hidden>
+      {stack.map((v, i) => {
+        const { body, rim } = chipColors(v)
+        const y = 66 - i * 13
+        return (
+          <g key={i}>
+            <ellipse cx="40" cy={y + 7} rx="30" ry="10.5" fill="#000" opacity="0.16" />
+            <rect x="10" y={y - 1} width="60" height="9" fill={body} />
+            <ellipse cx="40" cy={y + 8} rx="30" ry="10.5" fill={body} />
+            <ellipse cx="40" cy={y} rx="30" ry="10.5" fill={body} />
+            <ellipse cx="40" cy={y} rx="30" ry="10.5" fill="#FFF" fillOpacity="0.10" />
+            {[-1, 0, 1].map((k) => (
+              <rect key={k} x={38 + k * 20} y={y - 11} width="5" height="5" rx="1.5" fill={rim} fillOpacity="0.85" />
+            ))}
+            <ellipse cx="40" cy={y} rx="15" ry="5.2" fill="none" stroke={rim} strokeOpacity="0.7" strokeWidth="1.5" />
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+/**
+ * A card-room rule: a hairline broken by the four suits. Classic printer's
+ * ornament, and it separates sections without adding another boxed card.
+ */
+export function SuitRule({ className = '' }: { className?: string }) {
+  const suits = [SPADE, HEART, CLUB, DIAMOND]
+  return (
+    <div className={`flex items-center gap-3 ${className}`} aria-hidden>
+      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-line dark:to-night-line" />
+      <span className="flex items-center gap-1.5">
+        {suits.map((d, i) => (
+          <svg key={i} viewBox="0 0 64 64" className="h-[9px] w-[9px]">
+            <path
+              d={d}
+              className={i === 1 || i === 3 ? 'fill-suit-red/55' : 'fill-ink/30 dark:fill-zinc-500'}
+            />
+          </svg>
+        ))}
+      </span>
+      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-line dark:to-night-line" />
+    </div>
+  )
+}
+
+/** Slim felt banner used as a page header, so every screen sits on the table. */
+export function FeltHeader({ title, right }: { title: string; right?: ReactNode }) {
+  return (
+    <Felt className="mb-4 rounded-xl2 px-5 py-4 shadow-soft">
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-[22px] font-bold tracking-tight">{title}</h1>
+        {right}
+      </div>
+    </Felt>
+  )
+}

@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext'
 import { useTheme } from '../context/ThemeContext'
 import type { BudgetMode } from '../lib/types'
 import { ErrorNote, Spinner } from '../components/ui'
+import { ChipFace, FeltHeader, SuitRule } from '../components/decor'
 
 const MODE_COPY: Record<BudgetMode, { label: string; blurb: string }> = {
   fixed: {
@@ -64,11 +65,14 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 pt-2 text-[26px] font-bold tracking-tight">הגדרות</h1>
+      <FeltHeader title="הגדרות" />
 
       <div className="space-y-4">
         <section className="surface px-5 py-5">
-          <h2 className="mb-3 text-[15px] font-semibold">תקציב חודשי</h2>
+          <div className="mb-3 flex items-center gap-3">
+            <ChipFace value={500} size={34} />
+            <h2 className="text-[15px] font-semibold">תקציב חודשי</h2>
+          </div>
 
           <div className="relative">
             <input
@@ -90,7 +94,9 @@ export default function SettingsPage() {
             השאר ריק כדי לכבות את מעקב התקציב.
           </p>
 
-          <div className="mt-5 space-y-2.5">
+          <SuitRule className="my-5" />
+
+          <div className="space-y-2.5">
             {(Object.keys(MODE_COPY) as BudgetMode[]).map((m) => {
               const on = mode === m
               return (
