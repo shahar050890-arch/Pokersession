@@ -179,6 +179,37 @@
     box-shadow: inset 0 1px 0 #ffffff1a, 0 1px 3px #00000090;
   }
 
+  /*
+   * The rollover switch. A dealer button is either at your seat or it is not,
+   * so the two states differ in colour and in brightness, not only in the
+   * knob's position — position alone gave no read at a glance.
+   */
+  .dealer-track {
+    @apply block h-[30px] w-[56px] rounded-full bg-sunken transition-colors;
+    box-shadow: inset 0 2px 5px #00000099, inset 0 0 0 1px #ffffff1a;
+  }
+  .peer:checked ~ .dealer-track {
+    background: linear-gradient(180deg, #12D4B2, #0A8F79);
+    box-shadow: inset 0 1px 0 #ffffff3d, 0 0 14px #0fbfa059;
+  }
+
+  .dealer-knob {
+    @apply pointer-events-none absolute start-[3px] top-[3px] grid h-6 w-6 place-items-center
+           rounded-full text-[11px] font-extrabold transition;
+    background: radial-gradient(circle at 34% 30%, #B9B3A2, #8E8878);
+    color: #3A352A;
+    box-shadow: 0 1px 3px #000000b0;
+  }
+  .peer:checked ~ .dealer-knob {
+    background: radial-gradient(circle at 34% 30%, #FFFDF4, #D9D2BE);
+    color: #2A2418;
+    box-shadow: 0 1px 4px #000000b0, 0 0 10px #ffffff59;
+    transform: translateX(26px);
+  }
+  [dir='rtl'] .peer:checked ~ .dealer-knob {
+    transform: translateX(-26px);
+  }
+
   .rail {
     @apply flex gap-2 overflow-x-auto pb-1;
     scrollbar-width: none;

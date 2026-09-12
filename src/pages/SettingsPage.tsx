@@ -186,21 +186,8 @@ export default function SettingsPage() {
               />
               {/* The knob is a dealer button — the one thing on a poker table
                   that slides from seat to seat. */}
-              <span
-                className="block h-[30px] w-[56px] rounded-full bg-sunken transition"
-                style={{ boxShadow: 'inset 0 2px 5px #00000099, inset 0 0 0 1px #0FBFA040' }}
-              />
-              <span
-                className="pointer-events-none absolute start-[3px] top-[3px] grid h-6 w-6 place-items-center
-                           rounded-full text-[11px] font-extrabold text-[#2A2418] transition-transform
-                           peer-checked:translate-x-[26px] rtl:peer-checked:-translate-x-[26px]"
-                style={{
-                  background: 'radial-gradient(circle at 34% 30%, #FFFDF4, #D9D2BE)',
-                  boxShadow: '0 1px 3px #000000b0, 0 0 10px #0FBFA04d',
-                }}
-              >
-                D
-              </span>
+              <span className="dealer-track" />
+              <span className="dealer-knob">D</span>
             </span>
           </label>
 
