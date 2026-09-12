@@ -210,9 +210,13 @@ export default function SessionFormPage() {
 
   return (
     <div className="pb-4">
-      <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-[22px] font-bold tracking-tight">{id ? t.form.editTitle : t.form.newTitle}</h1>
-        <div className="seg w-[190px] shrink-0">
+      <header className="mb-4">
+        <h1 className="mb-2.5 text-[22px] font-bold tracking-tight">
+          {id ? t.form.editTitle : t.form.newTitle}
+        </h1>
+        {/* Full width rather than a fixed one: "Tournament" is far longer than
+            "טורניר", and a pinned width clipped it. */}
+        <div className="seg w-full">
           {(
             [
               ['cash', `♠ ${t.form.cash}`],

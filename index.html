@@ -9,6 +9,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <title>מעקב פוקר</title>
+    <script>
+      /*
+       * Runs before the first paint, so the app never flashes the wrong room
+       * while React boots. ThemeProvider re-applies the same thing on mount.
+       */
+      (function () {
+        try {
+          var saved = localStorage.getItem('poker.theme')
+          var dark =
+            saved === 'dark' ||
+            ((saved === null || saved === 'system') &&
+              matchMedia('(prefers-color-scheme: dark)').matches)
+          var mode = dark ? 'dark' : 'light'
+          document.documentElement.dataset.theme = mode
+          document.documentElement.style.colorScheme = mode
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute('content', dark ? '#070510' : '#F7F2E6')
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark'
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

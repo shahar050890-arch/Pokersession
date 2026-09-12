@@ -51,7 +51,8 @@ export function Felt({ children, className = '' }: { children: ReactNode; classN
       <div className="absolute inset-0 text-white">
         <SuitField opacity={0.05} scale={38} />
       </div>
-      {/* The two tubes running along the table's edges. */}
+      {/* The two tubes running along the table's edges, and the brass rail of
+          a real table around the whole thing. */}
       <div
         className="absolute inset-x-0 top-0 h-px"
         style={{ background: 'linear-gradient(90deg, transparent, #C99BFF66, transparent)' }}
@@ -59,6 +60,11 @@ export function Felt({ children, className = '' }: { children: ReactNode; classN
       <div
         className="absolute inset-x-0 bottom-0 h-px"
         style={{ background: 'linear-gradient(90deg, transparent, #0FBFA066, transparent)' }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[inherit]"
+        style={{ boxShadow: 'inset 0 0 0 1.5px #A8801E59, inset 0 0 0 4px #00000026' }}
       />
       <div className="relative">{children}</div>
     </div>
@@ -120,7 +126,7 @@ export function BudgetChip({ ratio, color, size = 96, caption = '' }: ChipProps)
       ))}
 
       {/* spent track + arc */}
-      <circle cx="55" cy="55" r={r} fill="none" stroke="#ffffff12" strokeWidth="8" />
+      <circle cx="55" cy="55" r={r} fill="none" className="stroke-ink/[0.09]" strokeWidth="8" />
       <circle
         cx="55" cy="55" r={r} fill="none"
         stroke={color} strokeWidth="8" strokeLinecap="round"
@@ -130,7 +136,7 @@ export function BudgetChip({ ratio, color, size = 96, caption = '' }: ChipProps)
       />
 
       {/* face */}
-      <circle cx="55" cy="55" r="33" fill="#08110F" />
+      <circle cx="55" cy="55" r="33" className="fill-panel" />
       <circle cx="55" cy="55" r="33" fill="none" stroke={color} strokeOpacity="0.35" strokeWidth="1.5" />
       <circle cx="55" cy="55" r="28" fill="none" stroke={color} strokeOpacity="0.18" strokeWidth="1" />
       <circle cx="55" cy="47" r="26" fill="url(#chip-face)" opacity="0.5" />
@@ -201,7 +207,7 @@ export function CardFan({ className = 'h-20 w-28' }: { className?: string }) {
             </text>
             <path d={c.suit} transform="translate(6.4 19) scale(0.115)" fill={fill} />
             {/* the top card has room for a full pip */}
-            {last && <path d={c.suit} transform="translate(12 30) scale(0.34)" className={fill} />}
+            {last && <path d={c.suit} transform="translate(12 30) scale(0.34)" fill={fill} />}
           </g>
         )
       })}
@@ -221,10 +227,10 @@ export function SuitMark({ type, className = '' }: { type: 'cash' | 'tournament'
     <span
       aria-hidden
       className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px]
-                  ${red ? 'bg-loss/[0.12]' : 'bg-white/[0.055]'} ${className}`}
+                  ${red ? 'bg-loss/[0.12]' : 'bg-ink/[0.07]'} ${className}`}
     >
       <svg viewBox="0 0 64 64" className="h-[15px] w-[15px]">
-        <path d={path} fill={red ? '#FF8DA3' : '#CFE6DA'} />
+        <path d={path} className={red ? 'fill-loss' : 'fill-ink'} fillOpacity={red ? 0.9 : 0.62} />
       </svg>
     </span>
   )
@@ -350,7 +356,8 @@ export function SuitRule({ className = '' }: { className?: string }) {
           <svg key={i} viewBox="0 0 64 64" className="h-[9px] w-[9px]">
             <path
               d={d}
-              fill={i === 1 || i === 3 ? '#C8102E8c' : '#ffffff40'}
+              className={i === 1 || i === 3 ? 'fill-loss' : 'fill-ink'}
+              fillOpacity={i === 1 || i === 3 ? 0.62 : 0.3}
             />
           </svg>
         ))}
@@ -363,7 +370,7 @@ export function SuitRule({ className = '' }: { className?: string }) {
 /** Slim felt banner used as a page header, so every screen sits on the table. */
 export function FeltHeader({ title, right }: { title: string; right?: ReactNode }) {
   return (
-    <Felt className="mb-4 rounded-xl2 px-5 py-4 shadow-soft">
+    <Felt className="mb-4 rounded-surface px-5 py-4 shadow-card">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-[22px] font-bold tracking-tight">{title}</h1>
         {right}

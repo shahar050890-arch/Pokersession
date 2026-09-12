@@ -7,7 +7,7 @@ import type { PokerSession } from '../lib/types'
 import BudgetCard from '../components/BudgetCard'
 import StatRow from '../components/StatRow'
 import { ChartEmpty, CumulativeChart, PerSessionChart, type ChartPoint } from '../components/Charts'
-import { CardFan, Felt, NeonSign, RecentHand, SuitRule } from '../components/decor'
+import { CardFan, ChipStack, Felt, NeonSign, RecentHand, SuitRule } from '../components/decor'
 import { EmptyState, ErrorNote, Spinner, moneyClass } from '../components/ui'
 import { useI18n } from '../context/I18nContext'
 
@@ -112,8 +112,15 @@ export default function Dashboard() {
     <div className="space-y-4">
       {/* One figure leads the screen, sitting on the table it came from. */}
       <Felt className="rounded-surface px-[18px] py-[18px]">
-        <NeonSign>after hours</NeonSign>
-        <p className="mt-2.5 text-[12px] text-white/[0.52]">{t.dash.totalProfit}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <NeonSign>after hours</NeonSign>
+          </div>
+          {/* The night's chips, sitting on the table next to the figure they
+              add up to. */}
+          <ChipStack className="-mt-1 h-[58px] w-[50px] shrink-0" />
+        </div>
+        <p className="mt-1 text-[12px] text-white/[0.52]">{t.dash.totalProfit}</p>
         <p
           className="num mt-0.5 text-hero text-white"
           style={{ textShadow: '0 0 12px #0FBFA088, 0 0 34px #0FBFA044' }}

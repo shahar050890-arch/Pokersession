@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { useI18n } from '../context/I18nContext'
+import { useTheme } from '../context/ThemeContext'
 import { formatMoney, formatShortDate, formatSigned, toDisplay } from '../lib/format'
 
 export interface ChartPoint {
@@ -20,20 +21,34 @@ export interface ChartPoint {
   value: number
 }
 
-const PROFIT = '#0FBFA0'
-const LOSS = '#FF4D6D'
-
-/** One palette: the charts sit in the same dark room as everything else. */
-function useAxisColors() {
-  return {
+/*
+ * Recharts paints through SVG attributes rather than classes, so this is the
+ * one place the palette has to be read in JS. The values mirror the tokens in
+ * index.css exactly.
+ */
+const PALETTE = {
+  dark: {
     axis: '#6E6490',
     grid: '#ffffff10',
     tooltipBg: '#0B0916',
     tooltipText: '#E4F0EC',
     border: '#ffffff1a',
-    up: PROFIT,
-    down: LOSS,
-  }
+    up: '#0FBFA0',
+    down: '#FF4D6D',
+  },
+  light: {
+    axis: '#948C7B',
+    grid: '#221E1812',
+    tooltipBg: '#FFFDF6',
+    tooltipText: '#221E18',
+    border: '#221E1826',
+    up: '#0C7F6C',
+    down: '#B82D3F',
+  },
+} as const
+
+function useAxisColors() {
+  return PALETTE[useTheme().resolved]
 }
 
 /** LRM-prefixed so a leading minus isn't reordered to the end inside RTL text. */

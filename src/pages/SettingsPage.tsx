@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useI18n } from '../context/I18nContext'
 import { useCurrency } from '../context/CurrencyContext'
+import { useTheme, type ThemePref } from '../context/ThemeContext'
 import type { BudgetMode } from '../lib/types'
 import type { Lang } from '../lib/i18n'
 import { ErrorNote, Spinner } from '../components/ui'
@@ -14,6 +15,7 @@ export default function SettingsPage() {
   const { settings, sessions, loading, saveSettings, resetAllData } = useData()
   const { t, lang, setLang } = useI18n()
   const { display, setDisplay, fellBack } = useCurrency()
+  const { theme, setTheme } = useTheme()
 
   const [budget, setBudget] = useState('')
   const [mode, setMode] = useState<BudgetMode>('fixed')
@@ -200,6 +202,30 @@ export default function SettingsPage() {
           <button onClick={() => void onSave()} className="tube mt-5" disabled={busy}>
             <span>{busy ? t.settings.saving : saved ? t.settings.saved : t.settings.save}</span>
           </button>
+        </section>
+
+        <section className="surface px-5 py-5">
+          <h2 className="mb-3 text-[15px] font-semibold">{t.settings.appearance}</h2>
+          <div className="flex gap-2">
+            {(
+              [
+                ['light', t.settings.light],
+                ['dark', t.settings.dark],
+                ['system', t.settings.system],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setTheme(value as ThemePref)}
+                className="chip-pill flex-1 justify-center text-center"
+                data-on={theme === value}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">{t.settings.appearanceNote}</p>
         </section>
 
         <section className="surface px-5 py-5">

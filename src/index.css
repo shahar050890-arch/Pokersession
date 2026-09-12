@@ -2,12 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Two rooms, one set of tokens.
+ *
+ * Dark is the after-hours card room: a violet cast from above, jade rising off
+ * the table. Light (M1) is the same room by day — warm paper, brass edges, and
+ * the very same dark felt as its one island, so switching modes never feels
+ * like a different app.
+ */
+:root {
+  --c-room: 7 5 16;
+  --c-panel: 11 9 22;
+  --c-sunken: 10 8 20;
+  --c-raised-from: 26 22 48;
+  --c-raised-to: 16 13 30;
+
+  --c-ink: 228 240 236;
+  --c-ink-soft: 147 170 163;
+  --c-ink-faint: 122 145 139;
+  --c-ink-dim: 110 100 144;
+
+  --c-jade: 15 191 160;
+  --c-loss: 255 77 109;
+  --c-brass: 201 162 39;
+  --c-violet: 123 44 255;
+  --c-violet-sign: 203 166 255;
+
+  --hair: #ffffff14;
+  --hair-soft: #ffffff0d;
+
+  --sh-key: inset 0 1px 0 #ffffff1f, inset 0 -1px 0 #00000080, 0 2px 0 #05040c;
+  --sh-key-down: inset 0 2px 5px #00000099;
+  --sh-sunken: inset 0 2px 7px #000000a6, inset 0 0 0 1px #ffffff12;
+  --sh-sunken-on: inset 0 2px 7px #000000a6, inset 0 0 0 1px #0fbfa066;
+  --sh-slab: inset 0 1px 0 #ffffff1f, 0 1px 3px #00000090, 0 0 12px #0fbfa026;
+  --sh-tube: 0 0 18px #0fbfa033, inset 0 0 26px #0fbfa01a, inset 0 1px 0 #ffffff14;
+  --sh-plaque: inset 0 0 0 1px #c9a22759, inset 0 1px 0 #ffffff12;
+  --sh-panel: 0 0 24px -8px #7b2cff40;
+  --sh-card: 0 8px 24px -12px #000000b0;
+}
+
+[data-theme='light'] {
+  --c-room: 247 242 230;
+  --c-panel: 255 253 246;
+  --c-sunken: 241 234 218;
+  --c-raised-from: 255 255 255;
+  --c-raised-to: 250 246 236;
+
+  --c-ink: 34 30 24;
+  --c-ink-soft: 110 103 89;
+  --c-ink-faint: 148 140 123;
+  --c-ink-dim: 138 124 94;
+
+  --c-jade: 12 127 108;
+  --c-loss: 184 45 63;
+  --c-brass: 168 128 30;
+  --c-violet: 91 45 130;
+  --c-violet-sign: 203 166 255;
+
+  --hair: #221e1826;
+  --hair-soft: #221e1814;
+
+  /* On paper the light comes from above and objects cast real shadows —
+     there is no lit top edge to fake, so the recipes invert. */
+  --sh-key: 0 1px 0 #ffffff, 0 2px 4px #241f1720, inset 0 0 0 1px #241f1714;
+  --sh-key-down: inset 0 2px 5px #241f1730;
+  --sh-sunken: inset 0 2px 5px #241f1720, inset 0 0 0 1px #241f1714;
+  --sh-sunken-on: inset 0 2px 5px #241f1720, inset 0 0 0 1.5px #0c7f6c80;
+  --sh-slab: 0 1px 3px #241f1726, inset 0 0 0 1px #241f170f;
+  --sh-tube: 0 2px 10px -4px #0d3a3466;
+  --sh-plaque: inset 0 0 0 1px #a8801e4d;
+  --sh-panel: 0 1px 2px #241f170f, inset 0 0 0 1px #a8801e2e;
+  --sh-card: 0 10px 26px -16px #241f1759;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
     overflow-x: hidden;
-    color-scheme: dark;
   }
 
   body {
@@ -27,8 +100,8 @@
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(78% 55% at 50% 15%, #7B2CFF45, transparent 72%),
-      radial-gradient(88% 40% at 50% 55%, #0FBFA026, transparent 70%);
+      radial-gradient(78% 55% at 50% 15%, #7b2cff45, transparent 72%),
+      radial-gradient(88% 40% at 50% 55%, #0fbfa026, transparent 70%);
     filter: blur(10px);
   }
 
@@ -41,6 +114,17 @@
     pointer-events: none;
     opacity: 0.5;
     background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px);
+  }
+
+  /* Daylight: no neon spill, and the grain becomes the tooth of paper. */
+  [data-theme='light'] body::before {
+    background:
+      radial-gradient(78% 55% at 50% 10%, #e8dcbe66, transparent 74%),
+      radial-gradient(88% 40% at 50% 55%, #0c7f6c0f, transparent 70%);
+  }
+  [data-theme='light'] body::after {
+    opacity: 0.6;
+    background: repeating-linear-gradient(0deg, #241f1707 0 1px, transparent 1px 3px);
   }
 
   .num {
@@ -57,16 +141,19 @@
     -moz-appearance: textfield;
   }
 
-  /* A native date control paints its own light chrome; force it into the room. */
+  /* A native date control paints its own chrome; force it to match the room. */
   input[type='date'] {
     background-color: transparent;
     color: inherit;
-    color-scheme: dark;
   }
   input[type='date']::-webkit-calendar-picker-indicator {
     filter: invert(1);
     opacity: 0.45;
     cursor: pointer;
+  }
+  [data-theme='light'] input[type='date']::-webkit-calendar-picker-indicator {
+    filter: none;
+    opacity: 0.55;
   }
   input[type='date']::-webkit-date-and-time-value {
     text-align: start;
@@ -78,8 +165,13 @@
     @apply rounded-surface border border-hair-soft bg-panel;
   }
 
+  /* The one card that carries the month's headline figure. Violet holds it in
+     the dark; on paper that job falls to brass, which is the light room's metal. */
   .surface-lit {
     @apply rounded-surface border border-violet/30 bg-panel shadow-panel;
+  }
+  [data-theme='light'] .surface-lit {
+    @apply border-brass/40;
   }
 
   .label {
@@ -91,8 +183,10 @@
   }
 
   /*
-   * The primary action is a neon sign: a dark body with a lit jade tube, held
-   * by two brackets. Never a filled slab — that was the glare.
+   * The primary action. In the dark it is a neon sign: a dark body with a lit
+   * jade tube, held by two brackets — never a filled slab, that was the glare.
+   * In daylight neon does not read, so it becomes what M1 showed: a slab of the
+   * table's own felt with a brass rail around it.
    */
   .tube {
     @apply relative block w-full px-[9px];
@@ -121,17 +215,39 @@
     @apply opacity-60;
   }
 
+  [data-theme='light'] .tube {
+    @apply px-0;
+  }
+  [data-theme='light'] .tube::before,
+  [data-theme='light'] .tube::after {
+    display: none;
+  }
+  [data-theme='light'] .tube > span {
+    @apply rounded-control border-0 py-[15px] text-[16px] font-bold;
+    background: linear-gradient(180deg, #0d3a34, #08241f);
+    color: #fff8e6;
+    text-shadow: none;
+    box-shadow: inset 0 0 0 1.5px #a8801e, var(--sh-tube);
+  }
+
   /* The table's own signage, for anything secondary. */
   .plaque {
     @apply w-full rounded-tube py-[13px] text-center text-[15px] font-semibold text-[#D9CFA6]
            shadow-plaque transition active:scale-[0.99];
     background: linear-gradient(180deg, #161228, #0d0b18);
   }
+  [data-theme='light'] .plaque {
+    @apply text-ink-soft;
+    background: rgb(var(--c-panel));
+  }
 
   /* A recessed tray holding a raised, lit slab. */
   .seg {
     @apply flex rounded-control bg-sunken p-1;
     box-shadow: inset 0 2px 6px #00000090, inset 0 0 0 1px #ffffff0d;
+  }
+  [data-theme='light'] .seg {
+    box-shadow: var(--sh-sunken);
   }
   .seg > button {
     @apply flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[14px]
@@ -140,6 +256,9 @@
   .seg > button[data-on='true'] {
     @apply font-bold text-jade shadow-slab;
     background: linear-gradient(180deg, #1b1733, #12101f);
+  }
+  [data-theme='light'] .seg > button[data-on='true'] {
+    background: #fffdf6;
   }
 
   /* Somewhere to put something, rather than a box with a line around it. */
@@ -160,6 +279,14 @@
     @apply text-jade shadow-key-down;
     background: linear-gradient(180deg, #0c0a16, #141127);
   }
+  [data-theme='light'] .key {
+    @apply text-ink;
+    background: linear-gradient(180deg, #fffdf6, #f6f0e2);
+  }
+  [data-theme='light'] .key:active {
+    @apply text-jade;
+    background: #ede5d3;
+  }
 
   .chip-pill {
     @apply shrink-0 whitespace-nowrap rounded-full border border-hair px-3.5 py-2 text-[14px]
@@ -170,6 +297,13 @@
     background: linear-gradient(180deg, #1b1733, #12101f);
     box-shadow: inset 0 1px 0 #ffffff1a, 0 0 12px #0fbfa026;
   }
+  [data-theme='light'] .chip-pill[data-on='true'] {
+    @apply border-jade/50;
+    /* The base rule paints a dark gradient through the `background` shorthand,
+       so the flat paper fill has to be set the same way to replace it. */
+    background: rgb(var(--c-jade) / 0.1);
+    box-shadow: none;
+  }
 
   /* A round control that matches the chips, for +/- and clear. */
   .knob {
@@ -177,6 +311,10 @@
            disabled:opacity-30;
     background: linear-gradient(180deg, #1a1630, #100d1e);
     box-shadow: inset 0 1px 0 #ffffff1a, 0 1px 3px #00000090;
+  }
+  [data-theme='light'] .knob {
+    background: linear-gradient(180deg, #fffdf6, #f4eddd);
+    box-shadow: var(--sh-key);
   }
 
   /*
@@ -189,25 +327,38 @@
     box-shadow: inset 0 2px 5px #00000099, inset 0 0 0 1px #ffffff1a;
   }
   .peer:checked ~ .dealer-track {
-    background: linear-gradient(180deg, #12D4B2, #0A8F79);
+    background: linear-gradient(180deg, #12d4b2, #0a8f79);
     box-shadow: inset 0 1px 0 #ffffff3d, 0 0 14px #0fbfa059;
+  }
+  [data-theme='light'] .dealer-track {
+    box-shadow: var(--sh-sunken);
+  }
+  [data-theme='light'] .peer:checked ~ .dealer-track {
+    background: linear-gradient(180deg, #12a389, #0a7461);
+    box-shadow: inset 0 1px 0 #ffffff4d, 0 1px 4px #0c7f6c4d;
   }
 
   .dealer-knob {
     @apply pointer-events-none absolute start-[3px] top-[3px] grid h-6 w-6 place-items-center
            rounded-full text-[11px] font-extrabold transition;
-    background: radial-gradient(circle at 34% 30%, #B9B3A2, #8E8878);
-    color: #3A352A;
+    background: radial-gradient(circle at 34% 30%, #b9b3a2, #8e8878);
+    color: #3a352a;
     box-shadow: 0 1px 3px #000000b0;
   }
   .peer:checked ~ .dealer-knob {
-    background: radial-gradient(circle at 34% 30%, #FFFDF4, #D9D2BE);
-    color: #2A2418;
+    background: radial-gradient(circle at 34% 30%, #fffdf4, #d9d2be);
+    color: #2a2418;
     box-shadow: 0 1px 4px #000000b0, 0 0 10px #ffffff59;
     transform: translateX(26px);
   }
   [dir='rtl'] .peer:checked ~ .dealer-knob {
     transform: translateX(-26px);
+  }
+  [data-theme='light'] .dealer-knob {
+    box-shadow: 0 1px 3px #241f1759;
+  }
+  [data-theme='light'] .peer:checked ~ .dealer-knob {
+    box-shadow: 0 1px 3px #241f1766;
   }
 
   .rail {
@@ -220,5 +371,8 @@
 
   .row-press {
     @apply transition active:bg-white/[0.04];
+  }
+  [data-theme='light'] .row-press {
+    @apply active:bg-black/[0.035];
   }
 }

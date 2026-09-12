@@ -1,10 +1,12 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { ChartIcon, GearIcon, ListIcon, PlusIcon } from './icons'
 import { useI18n } from '../context/I18nContext'
+import { useTheme } from '../context/ThemeContext'
 
 export default function Layout() {
   const { pathname } = useLocation()
   const { t } = useI18n()
+  const { resolved } = useTheme()
 
   const TABS = [
     { to: '/', label: t.nav.summary, Icon: ChartIcon, end: true },
@@ -22,16 +24,28 @@ export default function Layout() {
         <Outlet />
       </main>
 
+      {/* The same object as the primary button: a lit tube at night, a slab of
+          felt with a brass rail by day. */}
       {!onEntry && (
         <NavLink
           to="/add"
-          className="fixed left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-tube
-                     border-[1.5px] border-jade/70 px-6 py-3 text-[15.5px] font-bold text-jade
-                     shadow-tube transition active:scale-95"
+          className={`fixed left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-tube px-6
+                      py-3 text-[15.5px] font-bold shadow-tube transition active:scale-95 ${
+                        resolved === 'dark'
+                          ? 'border-[1.5px] border-jade/70 text-jade'
+                          : 'text-[#FFF8E6]'
+                      }`}
           style={{
             bottom: 'calc(5.5rem + env(safe-area-inset-bottom))',
-            background: 'linear-gradient(180deg, #100D1F, #0A0816)',
-            textShadow: '0 0 10px #0FBFA0cc',
+            ...(resolved === 'dark'
+              ? {
+                  background: 'linear-gradient(180deg, #100D1F, #0A0816)',
+                  textShadow: '0 0 10px #0FBFA0cc',
+                }
+              : {
+                  background: 'linear-gradient(180deg, #0D3A34, #08241F)',
+                  boxShadow: 'inset 0 0 0 1.5px #A8801E, 0 6px 18px -8px #0D3A3499',
+                }),
           }}
         >
           <PlusIcon className="h-[18px] w-[18px]" />
