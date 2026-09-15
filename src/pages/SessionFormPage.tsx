@@ -311,7 +311,10 @@ export default function SessionFormPage() {
       </div>
 
       {currency !== display && rateValue !== null && (typedBuyIn > 0 || typedCashOut > 0) && (
-        <div className="mt-3 flex items-center justify-between rounded-control border border-hair-soft bg-panel px-4 py-3">
+        <div
+          className="mt-3 flex items-center justify-between rounded-control bg-sunken px-4 py-3.5"
+          style={{ boxShadow: 'var(--clay-press)' }}
+        >
           <span className="text-[13px] font-medium text-ink-soft">{t.form.willShowAs}</span>
           <span className="num text-[15px] font-semibold">
             {formatMoney(buyInNum)} <span className="text-ink-dim">{t.form.inShort}</span> ·{' '}
@@ -323,7 +326,10 @@ export default function SessionFormPage() {
       {/* The multiplier is the easiest thing to get wrong, so it is spelled out
           in full rather than left implied by a small "total" label. */}
       {entries > 1 && buyInNum > 0 && (
-        <div className="mt-3 flex items-center justify-between rounded-control border border-brass/40 bg-brass/[0.07] px-4 py-3">
+        <div
+          className="mt-3 flex items-center justify-between rounded-control bg-brass/[0.13] px-4 py-3.5"
+          style={{ boxShadow: 'var(--clay-press)' }}
+        >
           <span className="text-[13px] font-medium text-ink-soft">{t.form.totalIn}</span>
           <span className="num text-[17px] font-bold">
             {entries} × {formatMoney(buyInNum)} ={' '}
@@ -350,8 +356,9 @@ export default function SessionFormPage() {
           disabled={active === ''}
           aria-label={t.form.clear}
           className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full
-                     border-2 border-dashed border-hair text-ink-faint transition active:scale-90
-                     disabled:opacity-25"
+                     bg-sunken text-ink-faint transition duration-150 active:translate-y-[1px]
+                     disabled:opacity-30"
+          style={{ boxShadow: 'var(--clay-press)' }}
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
             className="h-5 w-5" strokeLinecap="round">
@@ -488,7 +495,10 @@ export default function SessionFormPage() {
       {error && <div className="mt-4"><ErrorNote>{error}</ErrorNote></div>}
 
       {warning && (
-        <div className="mt-4 rounded-control border border-brass/40 bg-brass/[0.08] p-4">
+        <div
+          className="mt-4 rounded-control bg-brass/[0.13] p-4"
+          style={{ boxShadow: 'var(--clay-press)' }}
+        >
           <p className="font-semibold text-brass">{t.form.overTitle}</p>
           <p className="mt-1 text-[15px] leading-relaxed text-ink">{warning}</p>
           <div className="mt-4 flex gap-3">

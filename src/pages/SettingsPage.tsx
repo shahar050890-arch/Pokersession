@@ -150,9 +150,14 @@ export default function SettingsPage() {
                   key={m}
                   type="button"
                   onClick={() => setMode(m)}
-                  className={`w-full rounded-control border p-4 text-start transition ${
-                    on ? 'border-jade/50 bg-jade/[0.07]' : 'border-hair-soft'
+                  className={`w-full rounded-control p-4 text-start transition duration-150 ${
+                    on ? 'bg-panel' : 'bg-sunken'
                   }`}
+                  style={{
+                    boxShadow: on
+                      ? '0 12px 22px -12px var(--clay-cast), var(--clay-in), inset 0 0 0 1.5px rgb(var(--c-jade) / 0.45)'
+                      : 'var(--clay-press)',
+                  }}
                 >
                   <span className="flex items-center gap-2.5">
                     <span
@@ -280,7 +285,9 @@ export default function SettingsPage() {
           </p>
           <button
             onClick={() => void signOut()}
-            className="mt-4 w-full rounded-tube border border-loss/40 py-3.5 text-[16px] font-semibold text-loss transition active:scale-[0.985]"
+            className="mt-4 w-full rounded-control bg-panel py-4 text-[16px] font-semibold
+                       text-loss transition duration-150 active:translate-y-[1px]"
+            style={{ boxShadow: '0 10px 20px -12px var(--clay-cast), var(--clay-in)' }}
           >
             {t.settings.signOut}
           </button>
@@ -288,7 +295,10 @@ export default function SettingsPage() {
 
         {/* Destructive and permanent, so it confirms with the exact count and
             sits apart from everything else. */}
-        <section className="rounded-surface border border-loss/25 bg-loss/[0.05] px-5 py-5">
+        <section
+          className="rounded-surface bg-loss/[0.07] px-5 py-5"
+          style={{ boxShadow: 'var(--clay-lift), var(--clay-in)' }}
+        >
           <h2 className="text-[15px] font-semibold text-loss">
             {t.settings.danger}
           </h2>
@@ -310,7 +320,13 @@ export default function SettingsPage() {
                 <button
                   onClick={() => void onReset()}
                   disabled={resetting}
-                  className="flex-1 rounded-tube bg-loss py-3 text-[15px] font-semibold text-room transition active:scale-[0.98] disabled:opacity-50"
+                  className="flex-1 rounded-control py-3.5 text-[15px] font-bold text-white
+                             transition duration-150 active:translate-y-[1px] disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(145deg, rgb(var(--c-loss)), rgb(var(--c-loss) / 0.82))',
+                    boxShadow:
+                      '0 12px 22px -10px rgb(var(--c-loss) / 0.5), inset 4px 4px 9px #ffffff33, inset -4px -4px 9px #4a0e1a4d',
+                  }}
                 >
                   {resetting ? t.settings.resetting : t.settings.resetConfirm}
                 </button>
@@ -319,7 +335,7 @@ export default function SettingsPage() {
                     setConfirmReset(false)
                     setResetError(null)
                   }}
-                  className="plaque flex-1 !py-3"
+                  className="plaque flex-1"
                 >
                   {t.settings.resetCancel}
                 </button>
@@ -329,8 +345,9 @@ export default function SettingsPage() {
             <button
               onClick={() => setConfirmReset(true)}
               disabled={nothingToDelete}
-              className="mt-3 w-full rounded-tube border border-loss/40 bg-panel py-3.5 text-[16px]
-                         font-semibold text-loss transition active:scale-[0.985] disabled:opacity-40"
+              className="mt-3 w-full rounded-control bg-panel py-4 text-[16px] font-semibold
+                         text-loss transition duration-150 active:translate-y-[1px] disabled:opacity-40"
+              style={{ boxShadow: '0 10px 20px -12px var(--clay-cast), var(--clay-in)' }}
             >
               {nothingToDelete ? t.settings.resetNothing : t.settings.resetCta}
             </button>

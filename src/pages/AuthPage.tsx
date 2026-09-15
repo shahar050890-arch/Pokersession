@@ -58,14 +58,15 @@ export default function AuthPage() {
       {/* The sign-in screen is the one place the table can be felt outright. */}
       <div
         className="absolute inset-x-0 top-0 h-[46vh]"
-        style={{ background: 'linear-gradient(158deg, #0D3A34, #07211F)' }}
+        style={{ background: 'linear-gradient(145deg, #12564A, #0A2E27)' }}
       />
       <div className="absolute inset-x-0 top-0 h-[46vh] text-white">
         <SuitField opacity={0.06} scale={44} />
       </div>
+      {/* The band is a slab of clay, so it ends with a soft edge, not a rule. */}
       <div
-        className="absolute inset-x-0 top-[46vh] h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, #0FBFA066, transparent)' }}
+        className="absolute inset-x-0 top-[calc(46vh-26px)] h-[26px]"
+        style={{ borderBottomLeftRadius: 30, borderBottomRightRadius: 30, boxShadow: '0 16px 28px -14px var(--clay-cast)' }}
       />
 
       <div className="relative w-full max-w-sm">
@@ -130,7 +131,10 @@ export default function AuthPage() {
 
             {error && <ErrorNote>{error}</ErrorNote>}
             {notice && (
-              <p className="rounded-control border border-jade/30 bg-jade/[0.08] px-4 py-3 text-[15px] text-jade">
+              <p
+                className="rounded-control bg-jade/[0.12] px-4 py-3.5 text-[15px] text-jade"
+                style={{ boxShadow: 'var(--clay-press)' }}
+              >
                 {notice}
               </p>
             )}

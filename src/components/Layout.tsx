@@ -24,28 +24,18 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* The same object as the primary button: a lit tube at night, a slab of
-          felt with a brass rail by day. */}
+      {/* The same lozenge of jade clay as the primary button, floating. */}
       {!onEntry && (
         <NavLink
           to="/add"
-          className={`fixed left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-tube px-6
-                      py-3 text-[15.5px] font-bold shadow-tube transition active:scale-95 ${
-                        resolved === 'dark'
-                          ? 'border-[1.5px] border-jade/70 text-jade'
-                          : 'text-[#FFF8E6]'
-                      }`}
+          className="fixed left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-tube
+                     px-7 py-3.5 text-[15.5px] font-extrabold transition duration-150
+                     active:translate-y-[2px]"
           style={{
-            bottom: 'calc(5.5rem + env(safe-area-inset-bottom))',
-            ...(resolved === 'dark'
-              ? {
-                  background: 'linear-gradient(180deg, #100D1F, #0A0816)',
-                  textShadow: '0 0 10px #0FBFA0cc',
-                }
-              : {
-                  background: 'linear-gradient(180deg, #0D3A34, #08241F)',
-                  boxShadow: 'inset 0 0 0 1.5px #A8801E, 0 6px 18px -8px #0D3A3499',
-                }),
+            bottom: 'calc(5.75rem + env(safe-area-inset-bottom))',
+            background: 'linear-gradient(145deg, rgb(var(--c-jade)), rgb(var(--c-jade) / 0.82))',
+            color: resolved === 'dark' ? '#05221D' : '#F4FFFB',
+            boxShadow: 'var(--sh-tube)',
           }}
         >
           <PlusIcon className="h-[18px] w-[18px]" />
@@ -54,8 +44,13 @@ export default function Layout() {
       )}
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-20 border-t border-hair-soft bg-room/90 backdrop-blur-xl"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        className="fixed inset-x-0 bottom-0 z-20 bg-panel/95 backdrop-blur-xl"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          borderTopLeftRadius: 26,
+          borderTopRightRadius: 26,
+          boxShadow: '0 -10px 26px -14px var(--clay-cast), inset 0 2px 5px var(--clay-hi)',
+        }}
       >
         <div className="mx-auto flex max-w-2xl">
           {TABS.map(({ to, label, Icon, end }) => (

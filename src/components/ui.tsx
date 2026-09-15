@@ -12,7 +12,10 @@ export function Spinner({ label }: { label?: string }) {
 
 export function ErrorNote({ children }: { children: ReactNode }) {
   return (
-    <p className="rounded-control border border-loss/30 bg-loss/[0.08] px-4 py-3 text-[15px] text-loss">
+    <p
+      className="rounded-control bg-loss/[0.12] px-4 py-3.5 text-[15px] text-loss"
+      style={{ boxShadow: 'var(--clay-press)' }}
+    >
       {children}
     </p>
   )

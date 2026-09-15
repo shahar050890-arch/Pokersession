@@ -220,7 +220,10 @@ export default function SessionsPage() {
                                 </button>
                                 <button
                                   onClick={() => setPendingDelete(s.id)}
-                                  className="flex flex-1 items-center justify-center gap-2 rounded-tube border border-loss/40 py-2.5 text-[14px] font-semibold text-loss"
+                                  className="flex flex-1 items-center justify-center gap-2 rounded-control
+                                             bg-panel py-3 text-[14px] font-semibold text-loss
+                                             transition duration-150 active:translate-y-[1px]"
+                                  style={{ boxShadow: '0 8px 16px -10px var(--clay-cast), var(--clay-in)' }}
                                 >
                                   <TrashIcon />
                                   {t.list.delete}

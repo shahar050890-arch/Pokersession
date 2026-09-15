@@ -3,77 +3,112 @@
 @tailwind utilities;
 
 /*
- * Two rooms, one set of tokens.
+ * Claymorphism.
  *
- * Dark is the after-hours card room: a violet cast from above, jade rising off
- * the table. Light (M1) is the same room by day — warm paper, brass edges, and
- * the very same dark felt as its one island, so switching modes never feels
- * like a different app.
+ * Every object is a piece of soft clay: a fat radius, a large diffuse drop
+ * beneath it, a highlight pressed into its top-left and a shade into its
+ * bottom-right. Those two insets are what inflate it — without both, a
+ * rounded box is just a rounded box.
+ *
+ * Two rules keep it from turning into generic "soft UI":
+ *   1. The shade is never pure black. It is a warm, desaturated tint of the
+ *      ground, which is what makes clay read as a warm material rather than a
+ *      dirty smudge.
+ *   2. The light source is fixed to the top-left and never flips with text
+ *      direction — light does not care that the page is RTL.
+ *
+ * Pressed things (fields, keys held down, the segmented tray) invert the two
+ * insets and drop the lift, so they read as pushed into the clay.
+ *
+ * The chips are the reason this style fits: a poker chip is a clay object, so
+ * the app's central motif and its surface language are the same thing.
  */
 :root {
-  --c-room: 7 5 16;
-  --c-panel: 11 9 22;
-  --c-sunken: 10 8 20;
-  --c-raised-from: 26 22 48;
-  --c-raised-to: 16 13 30;
+  --c-room: 20 18 31;
+  --c-panel: 34 30 51;
+  --c-sunken: 25 22 37;
+  --c-raised-from: 42 37 62;
+  --c-raised-to: 30 26 46;
 
-  --c-ink: 228 240 236;
-  --c-ink-soft: 147 170 163;
-  --c-ink-faint: 122 145 139;
-  --c-ink-dim: 110 100 144;
+  --c-ink: 237 231 245;
+  --c-ink-soft: 167 158 190;
+  --c-ink-faint: 139 130 165;
+  --c-ink-dim: 124 114 152;
 
-  --c-jade: 15 191 160;
-  --c-loss: 255 77 109;
-  --c-brass: 201 162 39;
-  --c-violet: 123 44 255;
-  --c-violet-sign: 203 166 255;
+  --c-jade: 25 214 180;
+  --c-loss: 255 92 120;
+  --c-brass: 212 175 72;
+  --c-violet: 149 110 255;
+  --c-violet-sign: 197 172 255;
 
+  /* Clay has no outlines; a hairline only ever separates rows inside a piece. */
   --hair: #ffffff14;
-  --hair-soft: #ffffff0d;
+  --hair-soft: #ffffff0a;
 
-  --sh-key: inset 0 1px 0 #ffffff1f, inset 0 -1px 0 #00000080, 0 2px 0 #05040c;
-  --sh-key-down: inset 0 2px 5px #00000099;
-  --sh-sunken: inset 0 2px 7px #000000a6, inset 0 0 0 1px #ffffff12;
-  --sh-sunken-on: inset 0 2px 7px #000000a6, inset 0 0 0 1px #0fbfa066;
-  --sh-slab: inset 0 1px 0 #ffffff1f, 0 1px 3px #00000090, 0 0 12px #0fbfa026;
-  --sh-tube: 0 0 18px #0fbfa033, inset 0 0 26px #0fbfa01a, inset 0 1px 0 #ffffff14;
-  --sh-plaque: inset 0 0 0 1px #c9a22759, inset 0 1px 0 #ffffff12;
-  --sh-panel: 0 0 24px -8px #7b2cff40;
-  --sh-card: 0 8px 24px -12px #000000b0;
+  /* The three ingredients, then the recipes built from them. */
+  --clay-hi: #ffffff12;
+  --clay-lo: #07060e;
+  --clay-cast: #05040c59;
+
+  --clay-lift: 0 16px 30px -14px var(--clay-cast);
+  --clay-in: inset 5px 5px 10px var(--clay-hi), inset -5px -5px 10px var(--clay-lo);
+  --clay-press: inset 6px 6px 12px var(--clay-lo), inset -4px -4px 9px var(--clay-hi);
+
+  --sh-key: var(--clay-lift), var(--clay-in);
+  --sh-key-down: var(--clay-press);
+  --sh-sunken: var(--clay-press);
+  --sh-sunken-on: var(--clay-press), 0 0 0 1.5px rgb(var(--c-jade) / 0.4),
+    0 0 18px -4px rgb(var(--c-jade) / 0.45);
+  --sh-slab: 0 8px 16px -8px var(--clay-cast), var(--clay-in);
+  --sh-tube: 0 14px 26px -10px #19d6b459, inset 4px 4px 9px #ffffff2e,
+    inset -5px -5px 10px #05372e6b;
+  --sh-plaque: var(--clay-lift), var(--clay-in);
+  --sh-panel: var(--clay-lift), var(--clay-in);
+  --sh-card: 0 18px 34px -16px var(--clay-cast);
 }
 
 [data-theme='light'] {
-  --c-room: 247 242 230;
-  --c-panel: 255 253 246;
-  --c-sunken: 241 234 218;
-  --c-raised-from: 255 255 255;
-  --c-raised-to: 250 246 236;
+  /* The ground sits a shade darker than the pieces, so the clay can rise off it. */
+  --c-room: 236 227 212;
+  --c-panel: 248 242 230;
+  --c-sunken: 230 220 201;
+  --c-raised-from: 255 253 246;
+  --c-raised-to: 246 239 226;
 
-  --c-ink: 34 30 24;
-  --c-ink-soft: 110 103 89;
-  --c-ink-faint: 148 140 123;
-  --c-ink-dim: 138 124 94;
+  --c-ink: 42 36 25;
+  --c-ink-soft: 110 101 85;
+  --c-ink-faint: 145 135 115;
+  --c-ink-dim: 158 146 122;
 
-  --c-jade: 12 127 108;
-  --c-loss: 184 45 63;
-  --c-brass: 168 128 30;
-  --c-violet: 91 45 130;
-  --c-violet-sign: 203 166 255;
+  --c-jade: 14 138 115;
+  --c-loss: 196 72 92;
+  --c-brass: 176 138 46;
+  --c-violet: 104 63 143;
+  --c-violet-sign: 197 172 255;
 
-  --hair: #221e1826;
-  --hair-soft: #221e1814;
+  --hair: #2a24191f;
+  --hair-soft: #2a241912;
 
-  /* On paper the light comes from above and objects cast real shadows —
-     there is no lit top edge to fake, so the recipes invert. */
-  --sh-key: 0 1px 0 #ffffff, 0 2px 4px #241f1720, inset 0 0 0 1px #241f1714;
-  --sh-key-down: inset 0 2px 5px #241f1730;
-  --sh-sunken: inset 0 2px 5px #241f1720, inset 0 0 0 1px #241f1714;
-  --sh-sunken-on: inset 0 2px 5px #241f1720, inset 0 0 0 1.5px #0c7f6c80;
-  --sh-slab: 0 1px 3px #241f1726, inset 0 0 0 1px #241f170f;
-  --sh-tube: 0 2px 10px -4px #0d3a3466;
-  --sh-plaque: inset 0 0 0 1px #a8801e4d;
-  --sh-panel: 0 1px 2px #241f170f, inset 0 0 0 1px #a8801e2e;
-  --sh-card: 0 10px 26px -16px #241f1759;
+  /* Warm, not black: the shade is the ground's own colour, deepened. */
+  --clay-hi: #fffefb;
+  --clay-lo: #b9a78733;
+  --clay-cast: #9c8a6647;
+
+  --clay-lift: 0 16px 30px -14px var(--clay-cast);
+  --clay-in: inset 5px 5px 11px var(--clay-hi), inset -5px -5px 11px var(--clay-lo);
+  --clay-press: inset 6px 6px 12px #b9a78759, inset -4px -4px 9px #fffefbcc;
+
+  --sh-key: var(--clay-lift), var(--clay-in);
+  --sh-key-down: var(--clay-press);
+  --sh-sunken: var(--clay-press);
+  --sh-sunken-on: var(--clay-press), 0 0 0 1.5px rgb(var(--c-jade) / 0.4),
+    0 0 18px -4px rgb(var(--c-jade) / 0.35);
+  --sh-slab: 0 8px 16px -8px var(--clay-cast), var(--clay-in);
+  --sh-tube: 0 14px 26px -10px #0e8a7359, inset 4px 4px 9px #ffffff40,
+    inset -5px -5px 10px #05413566;
+  --sh-plaque: var(--clay-lift), var(--clay-in);
+  --sh-panel: var(--clay-lift), var(--clay-in);
+  --sh-card: 0 18px 34px -16px var(--clay-cast);
 }
 
 @layer base {
@@ -89,42 +124,25 @@
     isolation: isolate;
   }
 
-  /* The room: a violet cast from above, jade rising from the table. Fixed, so
-     it never adds to the scroll area. */
+  /*
+   * A wash of colour behind the clay. Broad and very soft — clay is lit by a
+   * room, not by a spotlight, so there is no hard falloff anywhere.
+   */
   body::before {
-    content: '';
-    position: fixed;
-    inset-inline: 0;
-    top: -60px;
-    height: 420px;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(78% 55% at 50% 15%, #7b2cff45, transparent 72%),
-      radial-gradient(88% 40% at 50% 55%, #0fbfa026, transparent 70%);
-    filter: blur(10px);
-  }
-
-  /* A trace of grain, so the flat areas are not perfectly flat. */
-  body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.5;
-    background: repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 3px);
+    background:
+      radial-gradient(70% 45% at 18% 8%, #956eff2e, transparent 70%),
+      radial-gradient(65% 40% at 88% 32%, #19d6b41f, transparent 72%);
   }
 
-  /* Daylight: no neon spill, and the grain becomes the tooth of paper. */
   [data-theme='light'] body::before {
     background:
-      radial-gradient(78% 55% at 50% 10%, #e8dcbe66, transparent 74%),
-      radial-gradient(88% 40% at 50% 55%, #0c7f6c0f, transparent 70%);
-  }
-  [data-theme='light'] body::after {
-    opacity: 0.6;
-    background: repeating-linear-gradient(0deg, #241f1707 0 1px, transparent 1px 3px);
+      radial-gradient(70% 45% at 18% 8%, #ffffff8c, transparent 70%),
+      radial-gradient(65% 40% at 88% 32%, #0e8a731a, transparent 72%);
   }
 
   .num {
@@ -161,17 +179,17 @@
 }
 
 @layer components {
+  /* The base piece of clay. No border: the lift and the two insets do that job. */
   .surface {
-    @apply rounded-surface border border-hair-soft bg-panel;
+    @apply rounded-surface bg-panel;
+    box-shadow: var(--clay-lift), var(--clay-in);
   }
 
-  /* The one card that carries the month's headline figure. Violet holds it in
-     the dark; on paper that job falls to brass, which is the light room's metal. */
+  /* The card carrying the month's headline figure, raised a little higher. */
   .surface-lit {
-    @apply rounded-surface border border-violet/30 bg-panel shadow-panel;
-  }
-  [data-theme='light'] .surface-lit {
-    @apply border-brass/40;
+    @apply rounded-surface bg-panel;
+    box-shadow: 0 22px 38px -16px var(--clay-cast), var(--clay-in),
+      inset 0 0 0 1.5px rgb(var(--c-brass) / 0.28);
   }
 
   .label {
@@ -183,138 +201,102 @@
   }
 
   /*
-   * The primary action. In the dark it is a neon sign: a dark body with a lit
-   * jade tube, held by two brackets — never a filled slab, that was the glare.
-   * In daylight neon does not read, so it becomes what M1 showed: a slab of the
-   * table's own felt with a brass rail around it.
+   * The primary action: a fat lozenge of jade clay. It is the only saturated
+   * piece on the screen, which is what makes it the obvious thing to press.
    */
   .tube {
-    @apply relative block w-full px-[9px];
-  }
-  .tube::before,
-  .tube::after {
-    content: '';
-    @apply absolute top-1/2 h-4 w-[5px] -translate-y-1/2 rounded-sm;
-    background: linear-gradient(180deg, #4a4270, #221e38);
-    box-shadow: inset 0 1px 0 #ffffff26;
-  }
-  .tube::before {
-    inset-inline-start: 0;
-  }
-  .tube::after {
-    inset-inline-end: 0;
+    @apply relative block w-full;
   }
   .tube > span {
-    @apply block rounded-tube border-[1.5px] border-jade/70 py-[14px] text-center text-[16px]
-           font-bold text-jade shadow-tube transition active:scale-[0.99];
-    background: linear-gradient(180deg, #100d1f, #0a0816);
-    text-shadow: 0 0 10px #0fbfa0cc;
+    @apply block rounded-tube py-[17px] text-center text-[16.5px] font-extrabold
+           shadow-tube transition duration-150;
+    background: linear-gradient(145deg, rgb(var(--c-jade)), rgb(var(--c-jade) / 0.82));
+    color: #05221d;
+  }
+  [data-theme='light'] .tube > span {
+    color: #f4fffb;
+  }
+  .tube:active > span {
+    @apply translate-y-[2px];
+    box-shadow: 0 6px 12px -8px var(--clay-cast), inset 5px 5px 11px #05372e5c,
+      inset -4px -4px 9px #ffffff1f;
   }
   .tube > span:disabled,
   .tube[data-busy='true'] > span {
     @apply opacity-60;
   }
 
-  [data-theme='light'] .tube {
-    @apply px-0;
-  }
-  [data-theme='light'] .tube::before,
-  [data-theme='light'] .tube::after {
-    display: none;
-  }
-  [data-theme='light'] .tube > span {
-    @apply rounded-control border-0 py-[15px] text-[16px] font-bold;
-    background: linear-gradient(180deg, #0d3a34, #08241f);
-    color: #fff8e6;
-    text-shadow: none;
-    box-shadow: inset 0 0 0 1.5px #a8801e, var(--sh-tube);
-  }
-
-  /* The table's own signage, for anything secondary. */
+  /* Anything secondary: the same clay as a panel, just smaller. */
   .plaque {
-    @apply w-full rounded-tube py-[13px] text-center text-[15px] font-semibold text-[#D9CFA6]
-           shadow-plaque transition active:scale-[0.99];
-    background: linear-gradient(180deg, #161228, #0d0b18);
+    @apply w-full rounded-control bg-panel py-[15px] text-center text-[15px] font-semibold
+           text-ink-soft shadow-plaque transition duration-150;
   }
-  [data-theme='light'] .plaque {
-    @apply text-ink-soft;
-    background: rgb(var(--c-panel));
+  .plaque:active {
+    @apply translate-y-[1px];
+    box-shadow: var(--clay-press);
   }
 
-  /* A recessed tray holding a raised, lit slab. */
+  /* A tray pressed into the clay, holding one raised tab. */
   .seg {
-    @apply flex rounded-control bg-sunken p-1;
-    box-shadow: inset 0 2px 6px #00000090, inset 0 0 0 1px #ffffff0d;
-  }
-  [data-theme='light'] .seg {
-    box-shadow: var(--sh-sunken);
+    @apply flex rounded-control bg-sunken p-1.5;
+    box-shadow: var(--clay-press);
   }
   .seg > button {
-    @apply flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[14px]
-           font-semibold text-ink-dim transition;
+    @apply flex flex-1 items-center justify-center gap-1.5 rounded-[15px] py-2.5 text-[14px]
+           font-semibold text-ink-dim transition duration-150;
   }
   .seg > button[data-on='true'] {
-    @apply font-bold text-jade shadow-slab;
-    background: linear-gradient(180deg, #1b1733, #12101f);
-  }
-  [data-theme='light'] .seg > button[data-on='true'] {
-    background: #fffdf6;
+    @apply bg-panel font-bold text-jade shadow-slab;
   }
 
-  /* Somewhere to put something, rather than a box with a line around it. */
+  /* Somewhere to put something: a hollow pressed into the clay. */
   .field {
-    @apply w-full rounded-control bg-sunken px-4 py-3.5 text-[17px] text-ink shadow-sunken
+    @apply w-full rounded-control bg-sunken px-4 py-4 text-[17px] text-ink shadow-sunken
            outline-none transition placeholder:text-ink-dim;
   }
   .field:focus {
     @apply shadow-sunken-on;
   }
 
-  /* A key that sits on something: lit along the top, shadowed underneath. */
+  /* A key is a small slab of clay that sinks when held. */
   .key {
-    @apply rounded-control py-[15px] text-center text-[24px] font-bold text-[#E9E4FA] shadow-key;
-    background: linear-gradient(180deg, #1a1630, #100d1e);
+    @apply rounded-control bg-panel py-[17px] text-center text-[24px] font-bold text-ink
+           shadow-key transition duration-100;
   }
   .key:active {
-    @apply text-jade shadow-key-down;
-    background: linear-gradient(180deg, #0c0a16, #141127);
-  }
-  [data-theme='light'] .key {
-    @apply text-ink;
-    background: linear-gradient(180deg, #fffdf6, #f6f0e2);
-  }
-  [data-theme='light'] .key:active {
-    @apply text-jade;
-    background: #ede5d3;
+    @apply translate-y-[2px] text-jade shadow-key-down;
   }
 
   .chip-pill {
-    @apply shrink-0 whitespace-nowrap rounded-full border border-hair px-3.5 py-2 text-[14px]
-           font-medium text-ink-soft transition active:scale-95;
+    @apply shrink-0 whitespace-nowrap rounded-full bg-panel px-4 py-2.5 text-[14px]
+           font-medium text-ink-soft transition duration-150;
+    box-shadow: 0 8px 16px -10px var(--clay-cast), var(--clay-in);
+  }
+  .chip-pill:active {
+    @apply translate-y-[1px];
   }
   .chip-pill[data-on='true'] {
-    @apply border-jade/40 font-bold text-jade;
-    background: linear-gradient(180deg, #1b1733, #12101f);
-    box-shadow: inset 0 1px 0 #ffffff1a, 0 0 12px #0fbfa026;
+    @apply font-bold;
+    /* Set through the same shorthand the base rule uses, so it replaces rather
+       than layers under it. */
+    background: linear-gradient(145deg, rgb(var(--c-jade)), rgb(var(--c-jade) / 0.85));
+    color: #05221d;
+    box-shadow: 0 10px 18px -10px rgb(var(--c-jade) / 0.5), inset 4px 4px 9px #ffffff33,
+      inset -4px -4px 9px #05372e4d;
   }
   [data-theme='light'] .chip-pill[data-on='true'] {
-    @apply border-jade/50;
-    /* The base rule paints a dark gradient through the `background` shorthand,
-       so the flat paper fill has to be set the same way to replace it. */
-    background: rgb(var(--c-jade) / 0.1);
-    box-shadow: none;
+    color: #f4fffb;
   }
 
-  /* A round control that matches the chips, for +/- and clear. */
+  /* A round pellet of clay, for +/- and clear. */
   .knob {
-    @apply grid h-9 w-9 place-items-center rounded-full text-[18px] text-ink transition active:scale-90
-           disabled:opacity-30;
-    background: linear-gradient(180deg, #1a1630, #100d1e);
-    box-shadow: inset 0 1px 0 #ffffff1a, 0 1px 3px #00000090;
+    @apply grid h-10 w-10 place-items-center rounded-full bg-panel text-[18px] text-ink
+           transition duration-150 disabled:opacity-30;
+    box-shadow: 0 8px 15px -9px var(--clay-cast), var(--clay-in);
   }
-  [data-theme='light'] .knob {
-    background: linear-gradient(180deg, #fffdf6, #f4eddd);
-    box-shadow: var(--sh-key);
+  .knob:active {
+    @apply translate-y-[1px];
+    box-shadow: var(--clay-press);
   }
 
   /*
@@ -323,46 +305,35 @@
    * knob's position — position alone gave no read at a glance.
    */
   .dealer-track {
-    @apply block h-[30px] w-[56px] rounded-full bg-sunken transition-colors;
-    box-shadow: inset 0 2px 5px #00000099, inset 0 0 0 1px #ffffff1a;
+    @apply block h-[34px] w-[62px] rounded-full bg-sunken transition-colors;
+    box-shadow: var(--clay-press);
   }
   .peer:checked ~ .dealer-track {
-    background: linear-gradient(180deg, #12d4b2, #0a8f79);
-    box-shadow: inset 0 1px 0 #ffffff3d, 0 0 14px #0fbfa059;
-  }
-  [data-theme='light'] .dealer-track {
-    box-shadow: var(--sh-sunken);
-  }
-  [data-theme='light'] .peer:checked ~ .dealer-track {
-    background: linear-gradient(180deg, #12a389, #0a7461);
-    box-shadow: inset 0 1px 0 #ffffff4d, 0 1px 4px #0c7f6c4d;
+    background: linear-gradient(145deg, rgb(var(--c-jade)), rgb(var(--c-jade) / 0.8));
+    box-shadow: inset 4px 4px 9px #ffffff33, inset -4px -4px 9px #05372e4d,
+      0 6px 14px -6px rgb(var(--c-jade) / 0.55);
   }
 
   .dealer-knob {
-    @apply pointer-events-none absolute start-[3px] top-[3px] grid h-6 w-6 place-items-center
-           rounded-full text-[11px] font-extrabold transition;
-    background: radial-gradient(circle at 34% 30%, #b9b3a2, #8e8878);
+    @apply pointer-events-none absolute start-[4px] top-[4px] grid h-[26px] w-[26px]
+           place-items-center rounded-full text-[11px] font-extrabold transition;
+    background: radial-gradient(circle at 34% 30%, #d8d1c0, #a79f8c);
     color: #3a352a;
-    box-shadow: 0 1px 3px #000000b0;
+    box-shadow: 0 4px 8px -2px #00000059, inset 2px 2px 4px #ffffff6b,
+      inset -2px -2px 4px #00000026;
   }
   .peer:checked ~ .dealer-knob {
-    background: radial-gradient(circle at 34% 30%, #fffdf4, #d9d2be);
-    color: #2a2418;
-    box-shadow: 0 1px 4px #000000b0, 0 0 10px #ffffff59;
-    transform: translateX(26px);
+    background: radial-gradient(circle at 34% 30%, #fffdf4, #e3dcc8);
+    color: #05221d;
+    transform: translateX(28px);
   }
   [dir='rtl'] .peer:checked ~ .dealer-knob {
-    transform: translateX(-26px);
-  }
-  [data-theme='light'] .dealer-knob {
-    box-shadow: 0 1px 3px #241f1759;
-  }
-  [data-theme='light'] .peer:checked ~ .dealer-knob {
-    box-shadow: 0 1px 3px #241f1766;
+    transform: translateX(-28px);
   }
 
   .rail {
-    @apply flex gap-2 overflow-x-auto pb-1;
+    /* Clay pieces cast a drop, so the strip needs room for it not to clip. */
+    @apply flex gap-2.5 overflow-x-auto pb-2.5 pt-1;
     scrollbar-width: none;
   }
   .rail::-webkit-scrollbar {
@@ -370,9 +341,6 @@
   }
 
   .row-press {
-    @apply transition active:bg-white/[0.04];
-  }
-  [data-theme='light'] .row-press {
-    @apply active:bg-black/[0.035];
+    @apply transition active:translate-y-[1px];
   }
 }

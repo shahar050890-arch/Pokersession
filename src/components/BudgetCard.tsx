@@ -15,8 +15,8 @@ interface Props {
  * match the --c-jade / --c-brass / --c-loss tokens of each room.
  */
 const TONE: Record<Resolved, { jade: string; brass: string; loss: string; idle: string }> = {
-  dark: { jade: '#0FBFA0', brass: '#C9A227', loss: '#FF4D6D', idle: '#6E6490' },
-  light: { jade: '#0C7F6C', brass: '#A8801E', loss: '#B82D3F', idle: '#8A7C5E' },
+  dark: { jade: '#19D6B4', brass: '#D4AF48', loss: '#FF5C78', idle: '#7C7298' },
+  light: { jade: '#0E8A73', brass: '#B08A2E', loss: '#C4485C', idle: '#9E927A' },
 }
 
 function tone(s: BudgetStatus, mode: Resolved) {

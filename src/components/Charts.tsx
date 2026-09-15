@@ -28,22 +28,22 @@ export interface ChartPoint {
  */
 const PALETTE = {
   dark: {
-    axis: '#6E6490',
-    grid: '#ffffff10',
-    tooltipBg: '#0B0916',
-    tooltipText: '#E4F0EC',
-    border: '#ffffff1a',
-    up: '#0FBFA0',
-    down: '#FF4D6D',
+    axis: '#7C7298',
+    grid: '#ffffff0f',
+    tooltipBg: '#221E33',
+    tooltipText: '#EDE7F5',
+    border: '#ffffff14',
+    up: '#19D6B4',
+    down: '#FF5C78',
   },
   light: {
-    axis: '#948C7B',
-    grid: '#221E1812',
-    tooltipBg: '#FFFDF6',
-    tooltipText: '#221E18',
-    border: '#221E1826',
-    up: '#0C7F6C',
-    down: '#B82D3F',
+    axis: '#9E927A',
+    grid: '#2A241914',
+    tooltipBg: '#F8F2E6',
+    tooltipText: '#2A2419',
+    border: '#2A24191f',
+    up: '#0E8A73',
+    down: '#C4485C',
   },
 } as const
 
@@ -73,7 +73,7 @@ function Tip({ active, payload, title }: TipProps) {
   return (
     <div
       dir="rtl"
-      className="rounded-xl px-3 py-2 text-xs shadow-card"
+      className="rounded-[16px] px-3.5 py-2.5 text-xs shadow-card"
       style={{ background: c.tooltipBg, color: c.tooltipText, border: `1px solid ${c.border}` }}
     >
       <p style={{ opacity: 0.6 }}>{formatShortDate(point.date)}</p>
@@ -161,7 +161,7 @@ export function PerSessionChart({ data }: { data: ChartPoint[] }) {
           content={<Tip title={t.chart.session} />}
           cursor={{ fill: c.grid }}
         />
-        <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={36}>
+        <Bar dataKey="value" radius={8} maxBarSize={32}>
           {data.map((d) => (
             <Cell key={d.date + d.label} fill={d.value >= 0 ? c.up : c.down} />
           ))}

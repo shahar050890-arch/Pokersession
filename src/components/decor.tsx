@@ -39,44 +39,36 @@ export function SuitField({ opacity = 0.05, scale = 46 }: { opacity?: number; sc
 }
 
 /**
- * The felt of a poker table: deep green, lit from above, with the brass rail
- * hairline that runs along the edge of a real one.
+ * The table: a single slab of green clay. It is the one surface that does not
+ * change between the two modes, so switching never reads as a different app.
  */
 export function Felt({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`relative overflow-hidden border border-hair-soft text-white ${className}`}
-      style={{ background: 'linear-gradient(158deg, #0D3A34, #07211F)' }}
+      className={`relative overflow-hidden text-white ${className}`}
+      style={{
+        background: 'linear-gradient(145deg, #12564A, #0A2E27)',
+        boxShadow:
+          '0 20px 38px -16px var(--clay-cast), inset 6px 6px 14px #ffffff1f, inset -6px -6px 14px #04171359',
+      }}
     >
       <div className="absolute inset-0 text-white">
         <SuitField opacity={0.05} scale={38} />
       </div>
-      {/* The two tubes running along the table's edges, and the brass rail of
-          a real table around the whole thing. */}
-      <div
-        className="absolute inset-x-0 top-0 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, #C99BFF66, transparent)' }}
-      />
-      <div
-        className="absolute inset-x-0 bottom-0 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, #0FBFA066, transparent)' }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[inherit]"
-        style={{ boxShadow: 'inset 0 0 0 1.5px #A8801E59, inset 0 0 0 4px #00000026' }}
-      />
       <div className="relative">{children}</div>
     </div>
   )
 }
 
-/** The neon sign above the table. Decorative by design, and the only such mark. */
+/**
+ * The table's own lettering. Clay has no neon in it, so this is stamped into
+ * the surface instead of glowing off it — a dark cut with a light edge under it.
+ */
 export function NeonSign({ children }: { children: string }) {
   return (
     <p
-      className="text-[11px] font-bold uppercase tracking-[0.26em] text-violet-sign"
-      style={{ textShadow: '0 0 8px #7B2CFFcc, 0 0 26px #7B2CFF77' }}
+      className="text-[11px] font-extrabold uppercase tracking-[0.26em] text-white/45"
+      style={{ textShadow: '0 1px 0 #ffffff26, 0 -1px 1px #00000059' }}
     >
       {children}
     </p>
@@ -103,7 +95,14 @@ export function BudgetChip({ ratio, color, size = 96, caption = '' }: ChipProps)
   const pct = Math.round(clamped * 100)
 
   return (
-    <svg viewBox="0 0 110 110" width={size} height={size} aria-hidden className="shrink-0">
+    <svg
+      viewBox="0 0 110 110"
+      width={size}
+      height={size}
+      aria-hidden
+      className="shrink-0"
+      style={{ filter: 'drop-shadow(0 8px 12px var(--clay-cast))' }}
+    >
       <defs>
         <linearGradient id="chip-face" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
@@ -182,7 +181,7 @@ export function CardFan({ className = 'h-20 w-28' }: { className?: string }) {
     <svg viewBox="0 0 140 104" className={className} aria-hidden>
       <defs>
         <filter id="fan-shadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.55" />
+          <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#000000" floodOpacity="0.32" />
         </filter>
       </defs>
 
@@ -226,8 +225,9 @@ export function SuitMark({ type, className = '' }: { type: 'cash' | 'tournament'
   return (
     <span
       aria-hidden
-      className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px]
-                  ${red ? 'bg-loss/[0.12]' : 'bg-ink/[0.07]'} ${className}`}
+      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px]
+                  ${red ? 'bg-loss/[0.12]' : 'bg-sunken'} ${className}`}
+      style={{ boxShadow: 'var(--clay-press)' }}
     >
       <svg viewBox="0 0 64 64" className="h-[15px] w-[15px]">
         <path d={path} className={red ? 'fill-loss' : 'fill-ink'} fillOpacity={red ? 0.9 : 0.62} />
@@ -308,8 +308,8 @@ export function ChipButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="shrink-0 rounded-full transition active:scale-90"
-      style={{ filter: 'drop-shadow(0 2px 4px rgba(20,20,26,0.22))' }}
+      className="shrink-0 rounded-full transition duration-150 active:translate-y-[2px]"
+      style={{ filter: 'drop-shadow(0 10px 14px var(--clay-cast))' }}
     >
       <ChipFace value={value} size={size} />
     </button>
@@ -318,9 +318,14 @@ export function ChipButton({
 
 /** A leaning stack of chips, for decoration where there is room for it. */
 export function ChipStack({ className = 'h-16 w-16' }: { className?: string }) {
-  const stack = [500, 100, 200, 100]
+  const stack = [500, 100, 25, 100]
   return (
-    <svg viewBox="0 0 80 92" className={className} aria-hidden>
+    <svg
+      viewBox="0 0 80 92"
+      className={className}
+      aria-hidden
+      style={{ filter: 'drop-shadow(0 8px 10px var(--clay-cast))' }}
+    >
       {stack.map((v, i) => {
         const { body, rim } = chipColors(v)
         const y = 66 - i * 13
@@ -370,7 +375,7 @@ export function SuitRule({ className = '' }: { className?: string }) {
 /** Slim felt banner used as a page header, so every screen sits on the table. */
 export function FeltHeader({ title, right }: { title: string; right?: ReactNode }) {
   return (
-    <Felt className="mb-4 rounded-surface px-5 py-4 shadow-card">
+    <Felt className="mb-4 rounded-surface px-6 py-5">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-[22px] font-bold tracking-tight">{title}</h1>
         {right}
@@ -410,10 +415,11 @@ export function RecentHand({
         return (
           <div
             key={s.id}
-            className="relative flex min-h-[84px] flex-1 flex-col overflow-hidden rounded-[10px] p-2.5"
+            className="relative flex min-h-[86px] flex-1 flex-col overflow-hidden rounded-[18px] p-3"
             style={{
               background: '#F9F6EE',
-              boxShadow: `0 0 0 1px ${rim}40, 0 0 12px -1px ${rim}2e, 0 6px 16px #0009`,
+              boxShadow: `0 10px 18px -8px #00000073, inset 3px 3px 7px #ffffffcc,
+                          inset -3px -3px 7px ${rim}33`,
             }}
           >
             <span className="flex items-center gap-[3px] text-[12px] font-extrabold">

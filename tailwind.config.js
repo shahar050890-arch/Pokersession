@@ -41,14 +41,16 @@ export default {
       fontSize: {
         hero: ['48px', { lineHeight: '1', letterSpacing: '-0.035em', fontWeight: '800' }],
       },
+      /* Clay is soft and inflated, so nothing is allowed a tight corner. */
       borderRadius: {
-        surface: '20px',
-        control: '11px',
-        tube: '9px',
+        surface: '30px',
+        control: '20px',
+        tube: '22px',
       },
       boxShadow: {
-        // Controls read as hardware: lit top edge, shadow underneath. The
-        // recipes themselves differ per mode, so they come from variables too.
+        // Every object is a piece of clay: a soft drop beneath it, a highlight
+        // pressed into its top-left and a shade into its bottom-right. The
+        // recipes differ per mode, so they come from variables.
         key: 'var(--sh-key)',
         'key-down': 'var(--sh-key-down)',
         sunken: 'var(--sh-sunken)',

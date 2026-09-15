@@ -111,7 +111,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-4">
       {/* One figure leads the screen, sitting on the table it came from. */}
-      <Felt className="rounded-surface px-[18px] py-[18px]">
+      <Felt className="rounded-surface px-6 py-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <NeonSign>after hours</NeonSign>
@@ -123,7 +123,7 @@ export default function Dashboard() {
         <p className="mt-1 text-[12px] text-white/[0.52]">{t.dash.totalProfit}</p>
         <p
           className="num mt-0.5 text-hero text-white"
-          style={{ textShadow: '0 0 12px #0FBFA088, 0 0 34px #0FBFA044' }}
+          style={{ textShadow: '0 2px 3px #04171359' }}
         >
           {formatSigned(stats.totalProfit)}
         </p>
